@@ -131,6 +131,16 @@ def verify_no_symlinks(root: Path) -> None:
         )
 
 
+def verify_release_layout(root: Path) -> None:
+    allowed = {"_locales", "background.js", "js&css", "manifest.json", "menu"}
+    actual = {path.name for path in root.iterdir()}
+    if actual != allowed:
+        raise VerificationError(
+            f"packaged top-level files changed; expected {sorted(allowed)!r}, "
+            f"got {sorted(actual)!r}"
+        )
+
+
 def verify_generated_project(project_root: Path, policy: dict) -> None:
     project_files = list(project_root.rglob("project.pbxproj"))
     if len(project_files) != 1:
@@ -209,6 +219,7 @@ def main() -> int:
         verify_no_custom_encryption(ROOT)
         if arguments.extension_root:
             verify_no_symlinks(arguments.extension_root)
+            verify_release_layout(arguments.extension_root)
             verify_manifest(arguments.extension_root / "manifest.json", policy, safari=True)
             verify_locales(arguments.extension_root)
             verify_no_custom_encryption(arguments.extension_root)

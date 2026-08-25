@@ -27,10 +27,13 @@ import re
 #---------------------------------------------------------------
 
 EXCLUDE_TOP_LEVEL = {
+	'.appstore',
 	'.editorconfig',
+	'.gitignore',
 	'.idea',
 	'build',
 	'node_modules',
+	'scripts',
 	'tests',
 	'jest.config.js',
 	'package-lock.json',
