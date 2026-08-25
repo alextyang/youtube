@@ -27,14 +27,28 @@ def main() -> int:
     generated_host_id = (
         policy["bundle_identifier"].rsplit(".", 1)[0] + "." + policy["app_name"]
     )
-    old = f"PRODUCT_BUNDLE_IDENTIFIER = {generated_host_id};"
-    new = f"PRODUCT_BUNDLE_IDENTIFIER = {policy['bundle_identifier']};"
-    count = text.count(old)
-    if count != 2:
-        raise SystemExit(
-            f"converter output changed: expected two generated host bundle IDs, found {count}"
-        )
-    project_file.write_text(text.replace(old, new), encoding="utf-8")
+    replacements = {
+        generated_host_id: (policy["bundle_identifier"], {2}),
+        generated_host_id + ".Extension": (
+            policy["extension_bundle_identifier"],
+            {0, 2},
+        ),
+        generated_host_id + "Tests": (policy["bundle_identifier"] + ".Tests", {0, 2}),
+        generated_host_id + "UITests": (
+            policy["bundle_identifier"] + ".UITests",
+            {0, 2},
+        ),
+    }
+    for old_identifier, (new_identifier, allowed_counts) in replacements.items():
+        old = f"PRODUCT_BUNDLE_IDENTIFIER = {old_identifier};"
+        new = f"PRODUCT_BUNDLE_IDENTIFIER = {new_identifier};"
+        count = text.count(old)
+        if count not in allowed_counts:
+            raise SystemExit(
+                f"converter output changed: found {count} occurrences of {old_identifier}"
+            )
+        text = text.replace(old, new)
+    project_file.write_text(text, encoding="utf-8")
 
     host_plists = [
         path

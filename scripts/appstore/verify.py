@@ -154,13 +154,18 @@ def verify_generated_project(project_root: Path, policy: dict) -> None:
     bundle_ids = set(
         re.findall(r"PRODUCT_BUNDLE_IDENTIFIER = ([^;]+);", project_text)
     )
-    expected_ids = {
+    required_ids = {
         policy["bundle_identifier"],
         policy["extension_bundle_identifier"],
     }
-    if bundle_ids != expected_ids:
+    allowed_ids = required_ids | {
+        policy["bundle_identifier"] + ".Tests",
+        policy["bundle_identifier"] + ".UITests",
+    }
+    if not required_ids.issubset(bundle_ids) or not bundle_ids.issubset(allowed_ids):
         raise VerificationError(
-            f"generated bundle IDs changed; expected {sorted(expected_ids)!r}, "
+            f"generated bundle IDs changed; required {sorted(required_ids)!r}, "
+            f"allowed {sorted(allowed_ids)!r}, "
             f"got {sorted(bundle_ids)!r}"
         )
 
