@@ -1,0 +1,104 @@
+name: App Store release
+
+on:
+  workflow_dispatch:
+    inputs:
+      marketing_version:
+        description: Three-part App Store version, for example 4.1322.0
+        required: true
+        type: string
+      build_number:
+        description: New integer build number greater than the last uploaded build
+        required: true
+        type: string
+      upload_to_app_store:
+        description: Upload to App Store Connect after protected-environment approval
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: appstore-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: Require the protected publisher branch
+        if: github.ref_name != 'appstore'
+        run: |
+          echo "Run releases only from the appstore branch" >&2
+          exit 1
+
+      - name: Check out exact release commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate release version
+        env:
+          MARKETING_VERSION: ${{ inputs.marketing_version }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          ./scripts/appstore/verify.py \
+            --marketing-version "$MARKETING_VERSION" \
+            --build-number "$BUILD_NUMBER"
+
+      - name: Test, audit, package, and compile
+        run: ./scripts/appstore/ci.sh "$RUNNER_TEMP/appstore-artifact"
+
+      - name: Preserve exact generated project
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: appstore-project-${{ github.sha }}
+          path: ${{ runner.temp }}/appstore-artifact
+          if-no-files-found: error
+          retention-days: 30
+
+  upload:
+    if: inputs.upload_to_app_store
+    needs: prepare
+    runs-on: macos-15
+    timeout-minutes: 45
+    environment:
+      name: app-store-production
+    steps:
+      - name: Check out trusted release tooling
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Download exact generated project
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: appstore-project-${{ github.sha }}
+          path: ${{ runner.temp }}/appstore-artifact
+
+      - name: Archive, validate, and upload
+        id: upload
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_PRIVATE_KEY_BASE64: ${{ secrets.ASC_PRIVATE_KEY_BASE64 }}
+          MARKETING_VERSION: ${{ inputs.marketing_version }}
+          BUILD_NUMBER: ${{ inputs.build_number }}
+        run: |
+          ./scripts/appstore/upload.sh \
+            "$RUNNER_TEMP/appstore-artifact" \
+            "$MARKETING_VERSION" \
+            "$BUILD_NUMBER"
+
+      - name: Preserve the uploaded Xcode archive
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ImprovedTube-${{ inputs.marketing_version }}-${{ inputs.build_number }}-xcarchive
+          path: ${{ steps.upload.outputs.ARCHIVE_PATH }}
+          if-no-files-found: error
+          retention-days: 90

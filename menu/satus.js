@@ -21,9 +21,6 @@
 		satus.style(element, object)
 		getAnimationDuration(element)
 
-# CRYPTION (async): decrypt(text, password)
-					 encrypt(text, password)
-
 Events.on(type, handler)
 Events.trigger(type, data)
 
