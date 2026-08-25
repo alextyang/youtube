@@ -60,6 +60,7 @@ def main() -> int:
     with host_plists[0].open("rb") as file:
         info = plistlib.load(file)
     info["ITSAppUsesNonExemptEncryption"] = False
+    info["LSApplicationCategoryType"] = policy["application_category"]
     with host_plists[0].open("wb") as file:
         plistlib.dump(info, file, sort_keys=True)
 
