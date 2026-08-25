@@ -6,7 +6,7 @@
   "application_category": "public.app-category.entertainment",
   "minimum_macos_version": "12.0",
   "last_known_marketing_version": "4.1321.0",
-  "last_known_build_number": 1329,
+  "last_known_build_number": 1330,
   "source_permissions": [
     "contextMenus",
     "storage",
