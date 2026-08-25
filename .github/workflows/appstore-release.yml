@@ -1,3 +1,4 @@
+# Publisher-owned workflow; signing secrets exist only in the protected environment.
 name: App Store release
 
 on:

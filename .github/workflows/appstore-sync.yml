@@ -1,3 +1,4 @@
+# Publisher-owned workflow; upstream sync restores this file before opening a PR.
 name: App Store upstream sync
 
 on:
