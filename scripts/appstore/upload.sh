@@ -14,6 +14,7 @@ POLICY="$REPO_ROOT/.appstore/policy.json"
 TEAM_ID=$(/usr/bin/python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["apple_team_id"])' "$POLICY")
 BUNDLE_ID=$(/usr/bin/python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["bundle_identifier"])' "$POLICY")
 MINIMUM_MACOS_VERSION=$(/usr/bin/python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["minimum_macos_version"])' "$POLICY")
+APPLICATION_CATEGORY=$(/usr/bin/python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["application_category"])' "$POLICY")
 
 : "${ASC_KEY_ID:?ASC_KEY_ID is required}"
 : "${ASC_ISSUER_ID:?ASC_ISSUER_ID is required}"
@@ -65,10 +66,12 @@ APP_BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP_PAT
 APP_VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_PATH/Contents/Info.plist")
 APP_BUILD=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP_PATH/Contents/Info.plist")
 APP_ENCRYPTION=$(/usr/libexec/PlistBuddy -c 'Print :ITSAppUsesNonExemptEncryption' "$APP_PATH/Contents/Info.plist")
+APP_CATEGORY=$(/usr/libexec/PlistBuddy -c 'Print :LSApplicationCategoryType' "$APP_PATH/Contents/Info.plist")
 [[ "$APP_BUNDLE_ID" == "$BUNDLE_ID" ]]
 [[ "$APP_VERSION" == "$MARKETING_VERSION" ]]
 [[ "$APP_BUILD" == "$BUILD_NUMBER" ]]
 [[ "$APP_ENCRYPTION" == "false" ]]
+[[ "$APP_CATEGORY" == "$APPLICATION_CATEGORY" ]]
 
 codesign --verify --deep --strict --verbose=4 "$APP_PATH"
 

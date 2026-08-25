@@ -182,6 +182,12 @@ def verify_generated_project(project_root: Path, policy: dict) -> None:
         raise VerificationError(
             "host Info.plist must set ITSAppUsesNonExemptEncryption to false"
         )
+    if app_info.get("LSApplicationCategoryType") != policy["application_category"]:
+        raise VerificationError(
+            "host Info.plist category changed; expected "
+            f"{policy['application_category']!r}, got "
+            f"{app_info.get('LSApplicationCategoryType')!r}"
+        )
 
 
 def parse_version(value: str) -> tuple[int, int, int]:

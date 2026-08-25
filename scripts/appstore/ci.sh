@@ -7,6 +7,7 @@ DERIVED_DATA="${OUTPUT_DIRECTORY}-derived-data"
 MINIMUM_MACOS_VERSION=$(/usr/bin/python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["minimum_macos_version"])' "$REPO_ROOT/.appstore/policy.json")
 BUNDLE_ID=$(/usr/bin/python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["bundle_identifier"])' "$REPO_ROOT/.appstore/policy.json")
 EXTENSION_BUNDLE_ID=$(/usr/bin/python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["extension_bundle_identifier"])' "$REPO_ROOT/.appstore/policy.json")
+APPLICATION_CATEGORY=$(/usr/bin/python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["application_category"])' "$REPO_ROOT/.appstore/policy.json")
 
 cd "$REPO_ROOT"
 ./scripts/appstore/verify.py
@@ -38,5 +39,6 @@ BUILT_EXTENSION="$BUILT_APP/Contents/PlugIns/ImprovedTube Extension.appex"
 [[ $(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$BUILT_APP/Contents/Info.plist") == "$BUNDLE_ID" ]]
 [[ $(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$BUILT_EXTENSION/Contents/Info.plist") == "$EXTENSION_BUNDLE_ID" ]]
 [[ $(/usr/libexec/PlistBuddy -c 'Print :ITSAppUsesNonExemptEncryption' "$BUILT_APP/Contents/Info.plist") == false ]]
+[[ $(/usr/libexec/PlistBuddy -c 'Print :LSApplicationCategoryType' "$BUILT_APP/Contents/Info.plist") == "$APPLICATION_CATEGORY" ]]
 [[ $(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$BUILT_APP/Contents/Info.plist") == "$MINIMUM_MACOS_VERSION" ]]
 ./scripts/appstore/verify.py --extension-root "$BUILT_EXTENSION/Contents/Resources"
