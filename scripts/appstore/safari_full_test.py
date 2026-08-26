@@ -30,13 +30,9 @@ DEFAULT_CONFIG = ROOT / ".appstore" / "testing" / "4.1322.0-safari-test.json"
 PRODUCT_PATHS = [
     "_locales",
     "background.js",
-    "build",
     "js&css",
     "manifest.json",
     "menu",
-    "package-lock.json",
-    "package.json",
-    "tests",
 ]
 MANUAL_PREFIXES = {
     "A11Y",
