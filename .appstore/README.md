@@ -49,8 +49,16 @@ installed publisher build:
 4. First leave `upload_to_app_store` disabled to exercise the unsigned build.
 5. Run it again with upload enabled, inspect the approval summary, and approve
    the `app-store-production` environment job.
-6. After Apple processes the upload, test it through TestFlight (or your normal
-   pre-release route), then select and submit it in App Store Connect.
+6. After Apple processes the upload, test the exact build through TestFlight
+   (or your normal pre-release route) against its release-specific index in
+   `.appstore/testing/`.
+7. Select and submit the build in App Store Connect only after every exit
+   criterion in the test index is signed off.
+
+The current candidate's contract is
+[`testing/4.1322.0-test-index.md`](testing/4.1322.0-test-index.md). Its generated
+feature and automated-assertion inventories prevent a small release changelog
+from being mistaken for complete regression coverage.
 
 Apple requires `CFBundleShortVersionString` to contain three dot-separated
 integers. The workflow also requires the marketing version and integer build to
