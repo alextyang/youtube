@@ -60,6 +60,10 @@ The current candidate's contract is
 feature and automated-assertion inventories prevent a small release changelog
 from being mistaken for complete regression coverage.
 
+Run its complete Safari gate with
+`./scripts/appstore/safari_full_test.py`. The command fails if deterministic
+checks fail or if any required Safari/manual feature evidence is absent.
+
 Apple requires `CFBundleShortVersionString` to contain three dot-separated
 integers. The workflow also requires the marketing version and integer build to
 be greater than the last known published values in `policy.json`. Update those

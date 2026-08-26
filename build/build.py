@@ -28,12 +28,14 @@ import re
 
 EXCLUDE_TOP_LEVEL = {
 	'.appstore',
+	'.codex',
 	'.editorconfig',
 	'.gitignore',
 	'.idea',
 	'build',
 	'node_modules',
 	'scripts',
+	'script',
 	'tests',
 	'jest.config.js',
 	'package-lock.json',
