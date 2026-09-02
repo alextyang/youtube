@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "menuSource": "menu/skeleton-parts/themes.js",
+  "contracts": {
+    "radio": {
+      "storageKey": "radio",
+      "applicability": "not_applicable",
+      "reason": "Reviewed N/A: 'radio' is a nested menu property, while the actual radio group persists the separate 'theme' key. Activating/restoring synthetic storage key 'radio' would not exercise the control; the three concrete custom-color contracts cover the real theme path and restore 'theme' exactly."
+    },
+    "theme_primary_color": {
+      "featureId": "IT-C428E5C1",
+      "storageKey": "theme_primary_color",
+      "fixtureId": "watch.base",
+      "route": "watch",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const n=document.querySelector('html');if(location.pathname!=='/watch'||!document.querySelector('#player video')||!n||getComputedStyle(n).backgroundColor==='rgb(12, 34, 56)')throw new Error('contrasting rendered theme surface unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "theme_primary_color",
+        "value": [
+          12,
+          34,
+          56
+        ],
+        "script": "ImprovedTube.messages.send({action:'set',key:'theme',value:'custom'});await new Promise(r=>setTimeout(r,300));ImprovedTube.myColors();return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "const n=document.querySelector('html');return {renderedColor:n?getComputedStyle(n).backgroundColor:null};"
+      },
+      "afterOracle": {
+        "script": "const n=document.querySelector('html');return {renderedColor:n?getComputedStyle(n).backgroundColor:null};"
+      },
+      "oracle": {
+        "kind": "attribute_style",
+        "relation": "changed_to",
+        "target": "renderedColor",
+        "expected": "rgb(12, 34, 56)"
+      },
+      "prerequisites": [
+        "The exact watch fixture must expose a contrasting rendered color and real player.",
+        "The product custom-theme caller applies the color; theme and the primary color key are restored exactly."
+      ],
+      "dependencyKeys": [
+        "theme"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "theme_primary_color",
+        "theme"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/themes.js",
+          "startLine": 4,
+          "endLine": 99
+        }
+      ],
+      "dependencyValues": {
+        "theme": "custom"
+      }
+    },
+    "theme_secondary_color": {
+      "featureId": "IT-DAA16E25",
+      "storageKey": "theme_secondary_color",
+      "fixtureId": "watch.base",
+      "route": "watch",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const n=document.querySelector('ytd-masthead');if(location.pathname!=='/watch'||!document.querySelector('#player video')||!n||getComputedStyle(n).backgroundColor==='rgb(12, 34, 56)')throw new Error('contrasting rendered theme surface unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "theme_secondary_color",
+        "value": [
+          12,
+          34,
+          56
+        ],
+        "script": "ImprovedTube.messages.send({action:'set',key:'theme',value:'custom'});await new Promise(r=>setTimeout(r,300));ImprovedTube.myColors();return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "const n=document.querySelector('ytd-masthead');return {renderedColor:n?getComputedStyle(n).backgroundColor:null};"
+      },
+      "afterOracle": {
+        "script": "const n=document.querySelector('ytd-masthead');return {renderedColor:n?getComputedStyle(n).backgroundColor:null};"
+      },
+      "oracle": {
+        "kind": "attribute_style",
+        "relation": "changed_to",
+        "target": "renderedColor",
+        "expected": "rgb(12, 34, 56)"
+      },
+      "prerequisites": [
+        "The exact watch fixture must expose a contrasting rendered color and real player.",
+        "The product custom-theme caller applies the color; theme and the primary color key are restored exactly."
+      ],
+      "dependencyKeys": [
+        "theme"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "theme_secondary_color",
+        "theme"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/themes.js",
+          "startLine": 4,
+          "endLine": 99
+        }
+      ],
+      "dependencyValues": {
+        "theme": "custom"
+      }
+    },
+    "theme_text_color": {
+      "featureId": "IT-0E41EF9C",
+      "storageKey": "theme_text_color",
+      "fixtureId": "watch.base",
+      "route": "watch",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const n=document.querySelector('h1.style-scope.ytd-watch-metadata yt-formatted-string,h1');if(location.pathname!=='/watch'||!document.querySelector('#player video')||!n||getComputedStyle(n).color==='rgb(12, 34, 56)')throw new Error('contrasting rendered theme surface unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "theme_text_color",
+        "value": [
+          12,
+          34,
+          56
+        ],
+        "script": "ImprovedTube.messages.send({action:'set',key:'theme',value:'custom'});await new Promise(r=>setTimeout(r,300));ImprovedTube.myColors();return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "const n=document.querySelector('h1.style-scope.ytd-watch-metadata yt-formatted-string,h1');return {renderedColor:n?getComputedStyle(n).color:null};"
+      },
+      "afterOracle": {
+        "script": "const n=document.querySelector('h1.style-scope.ytd-watch-metadata yt-formatted-string,h1');return {renderedColor:n?getComputedStyle(n).color:null};"
+      },
+      "oracle": {
+        "kind": "text_color",
+        "relation": "changed_to",
+        "target": "renderedColor",
+        "expected": "rgb(12, 34, 56)"
+      },
+      "prerequisites": [
+        "The exact watch fixture must expose a contrasting rendered color and real player.",
+        "The product custom-theme caller applies the color; theme and the primary color key are restored exactly."
+      ],
+      "dependencyKeys": [
+        "theme"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "theme_text_color",
+        "theme"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/themes.js",
+          "startLine": 4,
+          "endLine": 99
+        }
+      ],
+      "dependencyValues": {
+        "theme": "custom"
+      }
+    }
+  }
+}

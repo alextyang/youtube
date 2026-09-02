@@ -1,0 +1,464 @@
+{
+  "schemaVersion": 1,
+  "menuSource": "menu/skeleton-parts/settings.js",
+  "contracts": {
+    "custom_css": {
+      "storageKey": "custom_css",
+      "applicability": "not_applicable",
+      "reason": "Reviewed N/A: this text field accepts arbitrary user CSS but has no bounded product caller or deterministic fixture effect in the discovered source; executing arbitrary stylesheet input is outside a safe live contract."
+    },
+    "custom_js": {
+      "storageKey": "custom_js",
+      "applicability": "not_applicable",
+      "reason": "Reviewed N/A: this text field accepts arbitrary user JavaScript and has no bounded product caller or deterministic fixture oracle; executing user code in a live page is outside a safe contract."
+    },
+    "google-api-key": {
+      "featureId": "IT-5076BA3B",
+      "storageKey": "google-api-key",
+      "fixtureId": "extension.options",
+      "route": "extension",
+      "surface": "extension-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const spec=extension?.skeleton?.header?.sectionEnd?.menu?.on?.click?.settings?.on?.click?.secondSection?.developerOptions?.on?.click?.section?.api?.on?.click?.textField;if(!spec||typeof satus?.render!=='function')throw new Error('YouTube API field skeleton unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "google-api-key",
+        "value": "ImprovedTube-E2E-NONSECRET"
+      },
+      "beforeOracle": {
+        "script": "const spec=extension.skeleton.header.sectionEnd.menu.on.click.settings.on.click.secondSection.developerOptions.on.click.section.api.on.click.textField,host=document.createElement('div');document.body.append(host);satus.render(spec,host);const input=host.querySelector('textarea,input'),value=input?.value??null;host.remove();return {apiKeyFieldValue:value};"
+      },
+      "afterOracle": {
+        "script": "const spec=extension.skeleton.header.sectionEnd.menu.on.click.settings.on.click.secondSection.developerOptions.on.click.section.api.on.click.textField,host=document.createElement('div');document.body.append(host);satus.render(spec,host);const input=host.querySelector('textarea,input'),value=input?.value??null;host.remove();return {apiKeyFieldValue:value};"
+      },
+      "oracle": {
+        "kind": "permission_artifact",
+        "relation": "changed_to",
+        "target": "apiKeyFieldValue",
+        "expected": "ImprovedTube-E2E-NONSECRET"
+      },
+      "prerequisites": [
+        "Explicit permission-risk gate is required; only the literal non-secret sentinel is allowed.",
+        "The extension.options fixture cannot invoke YouTube Data API consumers, and the runtime restores google-api-key exactly."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "google-api-key"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 200
+      },
+      "risk": "permission",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],count=performance.getEntriesByType('resource').filter(e=>/googleapis\\.com\\/youtube|youtube\\.googleapis\\.com/.test(e.name)).length,ok=count===ctx.postActivation?.apiRequests;return {ok,verified:ok};"
+      },
+      "postActivation": {
+        "script": "const spec=extension?.skeleton?.header?.sectionEnd?.menu?.on?.click?.settings?.on?.click?.secondSection?.developerOptions?.on?.click?.section?.api?.on?.click?.textField;if(!spec||typeof satus?.render!=='function')throw new Error('YouTube API field skeleton unavailable after activation');const host=document.createElement('div');document.body.append(host);satus.render(spec,host);const input=host.querySelector('textarea,input'),fieldValue=input?.value??null;host.remove();if(fieldValue!=='ImprovedTube-E2E-NONSECRET')throw new Error('fresh YouTube API field did not bind activated value');const count=performance.getEntriesByType('resource').filter(e=>/googleapis\\.com\\/youtube|youtube\\.googleapis\\.com/.test(e.name)).length;return {ok:true,verified:true,apiRequests:count,fieldValue};"
+      },
+      "sourceRefs": [
+        {
+          "path": "menu/skeleton-parts/settings.js",
+          "startLine": 582,
+          "endLine": 596
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "improvedtube_home": {
+      "featureId": "IT-6302E2AE",
+      "storageKey": "improvedtube_home",
+      "route": "extension",
+      "surface": "extension-page",
+      "applicability": "applicable",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "fixtureId": "extension.options",
+      "setup": {
+        "script": "const base=document.querySelector('.satus-base'),icon=document.querySelector('.satus-button--general>span:first-child');if(!base||!icon)throw new Error('rendered extension home unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "improvedtube_home",
+        "value": "list"
+      },
+      "beforeOracle": {
+        "script": "const base=document.querySelector('.satus-base'),icon=document.querySelector('.satus-button--general>span:first-child');return {homeStyle:base?.getAttribute('home-style')||null,homeIconWidth:icon?getComputedStyle(icon).width:null};"
+      },
+      "afterOracle": {
+        "script": "const base=document.querySelector('.satus-base'),icon=document.querySelector('.satus-button--general>span:first-child');return {homeStyle:base?.getAttribute('home-style')||null,homeIconWidth:icon?getComputedStyle(icon).width:null};"
+      },
+      "oracle": {
+        "kind": "attribute_style",
+        "relation": "changed_to",
+        "target": "homeIconWidth",
+        "expected": "20px"
+      },
+      "prerequisites": [
+        "The rendered extension home and General category icon must be present; exact storage restoration returns the original layout."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "improvedtube_home"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "sourceRefs": [
+        {
+          "path": "menu/functions.js",
+          "startLine": 13,
+          "endLine": 45
+        },
+        {
+          "path": "menu/skeleton.js",
+          "startLine": 232,
+          "endLine": 240
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "language": {
+      "featureId": "IT-58F86BFC",
+      "storageKey": "language",
+      "route": "extension",
+      "surface": "extension-page",
+      "applicability": "applicable",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "fixtureId": "extension.options",
+      "setup": {
+        "script": "if(!document.querySelector('.satus-button--general')||typeof satus?.locale?.import!=='function')throw new Error('rendered extension locale surface unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "language",
+        "value": "de",
+        "script": "return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "return {generalLabel:document.querySelector('.satus-button--general')?.textContent?.trim()||null};"
+      },
+      "afterOracle": {
+        "script": "return {generalLabel:document.querySelector('.satus-button--general')?.textContent?.trim()||null};"
+      },
+      "oracle": {
+        "kind": "selected_state",
+        "relation": "changed_to",
+        "target": "generalLabel",
+        "expected": "Allgemein"
+      },
+      "prerequisites": [
+        "The German locale bundle and rendered extension home are available; the runner restores language exactly and reloads extension.options."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "language"
+      ],
+      "settle": {
+        "timeoutMs": 10000,
+        "pollMs": 250
+      },
+      "risk": "safe",
+      "sourceRefs": [
+        {
+          "path": "menu/index.js",
+          "startLine": 8,
+          "endLine": 15
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "layer_animation_scale": {
+      "featureId": "IT-CA82DFAC",
+      "storageKey": "layer_animation_scale",
+      "route": "extension",
+      "surface": "extension-page",
+      "applicability": "applicable",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "fixtureId": "extension.options",
+      "setup": {
+        "script": "if(!document.querySelector('.satus-base')||!document.querySelector('.satus-layers__layer'))throw new Error('rendered extension layer unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "layer_animation_scale",
+        "value": 0
+      },
+      "beforeOracle": {
+        "script": "const layer=document.querySelector('.satus-layers__layer');return {layerAnimationDuration:layer?getComputedStyle(layer).animationDuration:null};"
+      },
+      "afterOracle": {
+        "script": "const layer=document.querySelector('.satus-layers__layer');return {layerAnimationDuration:layer?getComputedStyle(layer).animationDuration:null};"
+      },
+      "oracle": {
+        "kind": "attribute_style",
+        "relation": "changed_to",
+        "target": "layerAnimationDuration",
+        "expected": "0s"
+      },
+      "prerequisites": [
+        "A rendered extension layer is required; the check uses computed animation duration and exact storage restoration."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "layer_animation_scale"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "sourceRefs": [
+        {
+          "path": "menu/functions.js",
+          "startLine": 13,
+          "endLine": 45
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "require_password": {
+      "featureId": "IT-27DEA10D",
+      "storageKey": "require_password",
+      "route": "extension",
+      "surface": "extension-page",
+      "applicability": "applicable",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "fixtureId": "extension.options",
+      "setup": {
+        "script": "if(typeof satus?.storage?.set!=='function')throw new Error('extension storage unavailable');if(document.querySelector('#login-input'))throw new Error('fixture already credential-gated');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "require_password",
+        "value": true,
+        "script": "return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "return {loginModalVisible:Boolean(document.querySelector('#login-input'))};"
+      },
+      "afterOracle": {
+        "script": "const input=document.querySelector('#login-input');return {loginModalVisible:Boolean(input&&getComputedStyle(input).display!=='none')};"
+      },
+      "oracle": {
+        "kind": "visibility",
+        "relation": "changed_to",
+        "target": "loginModalVisible",
+        "expected": true
+      },
+      "prerequisites": [
+        "Explicit permission-risk gate is required; only the disposable literal credential may be created.",
+        "The runtime snapshots and restores require_password and password exactly, then reloads extension.options."
+      ],
+      "dependencyKeys": [
+        "password"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "require_password",
+        "password"
+      ],
+      "settle": {
+        "timeoutMs": 10000,
+        "pollMs": 250
+      },
+      "risk": "permission",
+      "cleanup": {
+        "script": "const input=document.querySelector('#login-input'),modal=input?.closest('.satus-modal');if(typeof modal?.close==='function')modal.close();else modal?.remove();const ok=!document.querySelector('#login-input');return {ok,verified:ok};"
+      },
+      "dependencyValues": {
+        "password": "ImprovedTube-E2E-DISPOSABLE"
+      },
+      "sourceRefs": [
+        {
+          "path": "menu/index.js",
+          "startLine": 35,
+          "endLine": 60
+        }
+      ]
+    },
+    "title_version": {
+      "featureId": "IT-4C92D9F9",
+      "storageKey": "title_version",
+      "route": "extension",
+      "surface": "extension-page",
+      "applicability": "applicable",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "fixtureId": "extension.options",
+      "setup": {
+        "script": "if(!document.querySelector('.satus-base')||!document.querySelector('.satus-span--title'))throw new Error('rendered extension title unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "title_version",
+        "value": false
+      },
+      "beforeOracle": {
+        "script": "const title=document.querySelector('.satus-span--title');return {versionBadgeDisplay:title?getComputedStyle(title,'::after').display:null};"
+      },
+      "afterOracle": {
+        "script": "const title=document.querySelector('.satus-span--title');return {versionBadgeDisplay:title?getComputedStyle(title,'::after').display:null};"
+      },
+      "oracle": {
+        "kind": "visibility",
+        "relation": "changed_to",
+        "target": "versionBadgeDisplay",
+        "expected": "none"
+      },
+      "prerequisites": [
+        "The rendered extension title and version pseudo-element must exist; exact storage restoration returns the prior presentation."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "title_version"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "sourceRefs": [
+        {
+          "path": "menu/functions.js",
+          "startLine": 13,
+          "endLine": 45
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "use_24_hour_format": {
+      "featureId": "IT-BDADB158",
+      "storageKey": "use_24_hour_format",
+      "route": "extension",
+      "surface": "extension-page",
+      "applicability": "applicable",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "fixtureId": "extension.options",
+      "setup": {
+        "script": "const chart=extension?.skeleton?.main?.layers?.section?.analyzer?.on?.click?.analyzer?.chartSection?.chart;if(!chart||typeof satus?.render!=='function')throw new Error('analyzer chart unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "use_24_hour_format",
+        "value": false
+      },
+      "beforeOracle": {
+        "script": "const chart=extension.skeleton.main.layers.section.analyzer.on.click.analyzer.chartSection.chart,host=document.createElement('div');document.body.append(host);satus.render(chart,host);const labels=[...host.querySelectorAll('.satus-chart__labels .satus-chart__section')].map(x=>x.textContent).join('|');host.remove();return {renderedHourLabels:labels};"
+      },
+      "afterOracle": {
+        "script": "const chart=extension.skeleton.main.layers.section.analyzer.on.click.analyzer.chartSection.chart,host=document.createElement('div');document.body.append(host);satus.render(chart,host);const labels=[...host.querySelectorAll('.satus-chart__labels .satus-chart__section')].map(x=>x.textContent).join('|');host.remove();return {renderedHourLabels:labels};"
+      },
+      "oracle": {
+        "kind": "selected_state",
+        "relation": "changed_to",
+        "target": "renderedHourLabels",
+        "expected": "12A|6A|12A|6P"
+      },
+      "prerequisites": [
+        "The actual analyzer chart skeleton must render its hour labels; the owned temporary host is removed before each observation returns."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "use_24_hour_format"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "sourceRefs": [
+        {
+          "path": "menu/skeleton-parts/analyzer.js",
+          "startLine": 21,
+          "endLine": 50
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "youtube_language": {
+      "featureId": "IT-D74D1EC7",
+      "storageKey": "youtube_language",
+      "fixtureId": "watch.base",
+      "route": "watch",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const prefs=ImprovedTube.getParams(ImprovedTube.getCookieValueByName('PREF')),had=Object.prototype.hasOwnProperty.call(prefs,'hl'),priorHl=had?String(prefs.hl):null,priorDocumentLanguage=(document.documentElement.lang||'').split('-')[0]||null;if(location.hostname!=='www.youtube.com'||location.pathname!=='/watch'||!document.querySelector('#player video'))throw new Error('exact watch fixture unavailable');return {ok:true,had,priorHl,priorDocumentLanguage};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "youtube_language",
+        "value": "de",
+        "script": "if(typeof ImprovedTube?.youtubeLanguage!=='function')throw new Error('YouTube language caller unavailable');ImprovedTube.youtubeLanguage();setTimeout(()=>location.reload(),0);return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "return {documentLanguage:(document.documentElement.lang||'').split('-')[0]||null,watchPage:location.pathname==='/watch'};"
+      },
+      "afterOracle": {
+        "script": "return {documentLanguage:(document.documentElement.lang||'').split('-')[0]||null,watchPage:location.pathname==='/watch'};"
+      },
+      "oracle": {
+        "kind": "navigation",
+        "relation": "changed_to",
+        "target": "documentLanguage",
+        "expected": "de"
+      },
+      "prerequisites": [
+        "The exact watch fixture and player are required; the product PREF-language path is exercised and youtube_language restoration reverses it."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "youtube_language"
+      ],
+      "settle": {
+        "timeoutMs": 12000,
+        "pollMs": 300
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.setup;if(!base)return {ok:false};ImprovedTube.setPrefCookieValueByName('hl',base.had?base.priorHl:null);const prefs=ImprovedTube.getParams(ImprovedTube.getCookieValueByName('PREF')),had=Object.prototype.hasOwnProperty.call(prefs,'hl'),value=had?String(prefs.hl):null;return {ok:had===base.had&&value===base.priorHl};"
+      },
+      "afterRestoration": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.setup,prefs=ImprovedTube.getParams(ImprovedTube.getCookieValueByName('PREF')),had=Object.prototype.hasOwnProperty.call(prefs,'hl'),value=had?String(prefs.hl):null,lang=(document.documentElement.lang||'').split('-')[0]||null;return {ok:Boolean(base&&had===base.had&&value===base.priorHl&&lang===base.priorDocumentLanguage),documentLanguage:lang};"
+      },
+      "sideEffectState": {
+        "cookieNames": [
+          "PREF"
+        ]
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/settings.js",
+          "startLine": 169,
+          "endLine": 181
+        },
+        {
+          "path": "js&css/web-accessible/functions.js",
+          "startLine": 689,
+          "endLine": 719
+        }
+      ],
+      "dependencyValues": {}
+    }
+  }
+}

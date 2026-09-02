@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "menuSource": "menu/skeleton-parts/blocklist.js",
+  "contracts": {
+    "blocklist_activate": {
+      "featureId": "IT-5B8A73BA",
+      "storageKey": "blocklist_activate",
+      "fixtureId": "watch.base",
+      "route": "watch",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "if(location.pathname!=='/watch'||!document.querySelector('#related'))throw new Error('related-video blocklist fixture unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "blocklist_activate",
+        "value": true,
+        "script": "const s=window.__itE2EBlock,current=ImprovedTube.storage.blocklist&&typeof ImprovedTube.storage.blocklist==='object'?structuredClone(ImprovedTube.storage.blocklist):{videos:{},channels:{}};if(!s)throw new Error('blocklist target unavailable');current.videos=current.videos||{};current.channels=current.channels||{};current.videos[s.id]={title:'ImprovedTube E2E',when:0};ImprovedTube.messages.send({action:'set',key:'blocklist',value:current});await new Promise(r=>setTimeout(r,300));ImprovedTube.blocklistInit();return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "return {seededRelatedCardFiltered:false};"
+      },
+      "afterOracle": {
+        "script": "const n=window.__itE2EBlock?.card;return {seededRelatedCardFiltered:Boolean(n?.classList.contains('it-blocklisted-video')&&getComputedStyle(n).display==='none')};"
+      },
+      "oracle": {
+        "kind": "collection_filter",
+        "relation": "changed_to",
+        "target": "seededRelatedCardFiltered",
+        "expected": true
+      },
+      "prerequisites": [
+        "The exact watch fixture must expose at least two related cards and a stable video ID.",
+        "The dependency snapshot preserves the full prior blocklist; only a run-owned video entry is added, then blocklist and activation are restored exactly."
+      ],
+      "dependencyKeys": [
+        "blocklist"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "blocklist_activate",
+        "blocklist"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "dependencyValues": {
+        "blocklist": {
+          "videos": {},
+          "channels": {}
+        }
+      },
+      "postActivation": {
+        "script": "const cards=[...document.querySelectorAll('#related ytd-compact-video-renderer,#related yt-lockup-view-model')],card=cards.find(n=>n.querySelector('a[href*=\"watch?v=\"]')),anchor=card?.querySelector('a[href*=\"watch?v=\"]'),id=anchor?new URL(anchor.href,location.origin).searchParams.get('v'):null;if(cards.length<2||!card||!anchor||!id)throw new Error('related-video blocklist target unavailable');window.__itE2EBlock={card,anchor,id};return {ok:true,verified:true,id};"
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/blocklist.js",
+          "startLine": 4,
+          "endLine": 94
+        },
+        {
+          "path": "js&css/web-accessible/www.youtube.com/blocklist.js",
+          "startLine": 220,
+          "endLine": 269
+        }
+      ]
+    },
+    "blocklist_dislike_trigger": {
+      "featureId": "IT-C1F52AB0",
+      "storageKey": "blocklist_dislike_trigger",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "fixtureId": "watch.base",
+      "route": "watch",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const ctx=arguments[arguments.length-1],videoId=new URL(location.href).searchParams.get('v'),button=document.querySelector('dislike-button-view-model button[aria-pressed]'),exact=ctx.accountFixture&&ctx.observedAccount&&JSON.stringify(ctx.accountFixture)===JSON.stringify(ctx.observedAccount),snapshot=ctx.storageBaseline?.blocklist;if(!snapshot||typeof snapshot.present!=='boolean'||!Object.prototype.hasOwnProperty.call(snapshot,'value'))throw new Error('pre-dependency blocklist snapshot unavailable');const originalBlocklist={present:snapshot.present,value:snapshot.present?JSON.parse(JSON.stringify(snapshot.value)):null},targetOriginallyBlocked=Boolean(originalBlocklist.value?.videos?.[videoId]);if(!exact||ctx.accountFixture.videoId!==videoId||!button||button.disabled||button.getAttribute('aria-pressed')!=='false'||targetOriginallyBlocked)throw new Error('approved reversible account/video target unavailable');return {ok:true,videoId,priorPressed:'false',account:ctx.observedAccount,originalBlocklist};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "blocklist_dislike_trigger",
+        "value": true,
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,s=window.__itE2EDislike,wait=async(test,label)=>{const end=Date.now()+8000;while(Date.now()<end){if(test())return;await new Promise(r=>setTimeout(r,100));}throw new Error(label);};if(!s||!base)throw new Error('dislike baseline unavailable');const url=new URL(s.anchor.href,location.origin);url.pathname='/watch';url.search='?v='+base.videoId;s.anchor.setAttribute('href',url.pathname+url.search);ImprovedTube.blocklistNode(s.anchor);s.button.click();await wait(()=>s.button.getAttribute('aria-pressed')==='true','native dislike did not become pressed');await wait(()=>s.blocked.classList.contains('it-blocklisted-video')&&getComputedStyle(s.blocked).display==='none','matching YouTube card was not visibly blocklisted');return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "return {realDislikeAndCardFiltered:false};"
+      },
+      "afterOracle": {
+        "script": "const s=window.__itE2EDislike,native=s?.button?.getAttribute('aria-pressed')==='true',filtered=Boolean(s?.blocked?.classList.contains('it-blocklisted-video')&&getComputedStyle(s.blocked).display==='none');return {nativeDislikePressed:native,matchingCardFiltered:filtered,realDislikeAndCardFiltered:native&&filtered};"
+      },
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,s=window.__itE2EDislike,raw=window.ytInitialPlayerResponse||window.ytplayer?.config?.args?.player_response||null,response=(()=>{try{return typeof raw==='string'?JSON.parse(raw):raw;}catch{return raw;}})(),details=response?.videoDetails||window.ytInitialPlayerResponse?.videoDetails||{},delegated=String(window.ytcfg?.get?.('DELEGATED_SESSION_ID')||'').trim(),datasync=String(window.ytcfg?.get?.('DATASYNC_ID')||'').trim(),accountId=delegated||(datasync.includes('||')?datasync.split('||')[0]:datasync),current={accountId,fixtureId:ctx.observedAccount?.fixtureId,videoId:new URL(location.href).searchParams.get('v')||details.videoId||null,channelId:details.channelId||null},exact=window.ytcfg?.get?.('LOGGED_IN')===true&&ctx.accountFixture&&ctx.observedAccount&&JSON.stringify(ctx.accountFixture)===JSON.stringify(ctx.observedAccount)&&JSON.stringify(current)===JSON.stringify(base?.account),wait=async(test,label)=>{const end=Date.now()+8000;while(Date.now()<end){if(test())return;await new Promise(r=>setTimeout(r,100));}throw new Error(label);};if(!exact||!base||!s)return {ok:false,verified:false};if(s.button.getAttribute('aria-pressed')!==base.priorPressed){s.button.click();await wait(()=>s.button.getAttribute('aria-pressed')===base.priorPressed,'native dislike undo failed');}ImprovedTube.messages.send({action:'set',key:'blocklist',value:base.dependencyBaseline});await wait(()=>JSON.stringify(ImprovedTube.storage.blocklist)===JSON.stringify(base.dependencyBaseline),'blocklist baseline restore failed');s.anchor.setAttribute('href',base.originalHref);ImprovedTube.blocklistNode(s.anchor);const ok=s.button.getAttribute('aria-pressed')===base.priorPressed&&s.anchor.getAttribute('href')===base.originalHref&&JSON.stringify(ImprovedTube.storage.blocklist)===JSON.stringify(base.dependencyBaseline)&&!s.blocked.classList.contains('it-blocklisted-video')&&getComputedStyle(s.blocked).display!=='none';delete window.__itE2EDislike;return {ok,verified:ok};"
+      },
+      "oracle": {
+        "kind": "account_remote",
+        "relation": "changed_to",
+        "target": "realDislikeAndCardFiltered",
+        "expected": true
+      },
+      "prerequisites": [
+        "Explicit account authorization requires an exact disposable accountId plus watch.base video/channel target; runtime and contract derive accountId from DELEGATED_SESSION_ID or DATASYNC_ID and require exact equality with the observed signed-in account.",
+        "The runtime supplies the exact blocklist presence/value snapshot captured before dependency writes; setup rejects a target already present in that true original baseline.",
+        "The forced empty dependency blocklist is used only as the active test and same-document cleanup baseline.",
+        "Cleanup runs before navigation and fails closed unless the same account/video native rating, dependency blocklist, card href, and visible state are restored.",
+        "After full harness restoration and route re-entry, an independent fresh-document assertion rebinds the exact approved account/video, proves the native dislike equals its original state, compares exact blocklist presence/value with the true pre-dependency snapshot including nonempty baselines, and verifies any matching rendered baseline card remains visible."
+      ],
+      "dependencyKeys": [
+        "blocklist_activate",
+        "blocklist"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "blocklist_dislike_trigger",
+        "blocklist_activate",
+        "blocklist"
+      ],
+      "settle": {
+        "timeoutMs": 10000,
+        "pollMs": 150
+      },
+      "risk": "account",
+      "dependencyValues": {
+        "blocklist_activate": true,
+        "blocklist": {
+          "videos": {},
+          "channels": {}
+        }
+      },
+      "postActivation": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.setup,button=document.querySelector('dislike-button-view-model button[aria-pressed]'),anchor=[...document.querySelectorAll('#related a.ytd-thumbnail[href*=\"watch?v=\"]')].find(a=>ImprovedTube.blocklistElementTypeHelper(a)),blocked=anchor&&ImprovedTube.blocklistElementTypeHelper(anchor),dependencyBaseline=ImprovedTube.storage.blocklist&&typeof ImprovedTube.storage.blocklist==='object'?JSON.parse(JSON.stringify(ImprovedTube.storage.blocklist)):{videos:{},channels:{}},raw=window.ytInitialPlayerResponse||window.ytplayer?.config?.args?.player_response||null,response=(()=>{try{return typeof raw==='string'?JSON.parse(raw):raw;}catch{return raw;}})(),details=response?.videoDetails||window.ytInitialPlayerResponse?.videoDetails||{},delegated=String(window.ytcfg?.get?.('DELEGATED_SESSION_ID')||'').trim(),datasync=String(window.ytcfg?.get?.('DATASYNC_ID')||'').trim(),accountId=delegated||(datasync.includes('||')?datasync.split('||')[0]:datasync),current={accountId,fixtureId:ctx.observedAccount?.fixtureId,videoId:new URL(location.href).searchParams.get('v')||details.videoId||null,channelId:details.channelId||null},exact=window.ytcfg?.get?.('LOGGED_IN')===true&&ctx.accountFixture&&ctx.observedAccount&&JSON.stringify(ctx.accountFixture)===JSON.stringify(ctx.observedAccount)&&JSON.stringify(current)===JSON.stringify(ctx.observedAccount);if(!exact||current.videoId!==base.videoId||!button||button.getAttribute('aria-pressed')!==base.priorPressed||dependencyBaseline.videos?.[base.videoId]||!anchor||!blocked||getComputedStyle(blocked).display==='none')throw new Error('post-activation dislike target unavailable');window.__itE2EDislike={button,anchor,blocked};return {ok:true,verified:true,videoId:base.videoId,priorPressed:base.priorPressed,dependencyBaseline,originalHref:anchor.getAttribute('href'),account:current};"
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/blocklist.js",
+          "startLine": 170,
+          "endLine": 243
+        },
+        {
+          "path": "js&css/extension/init.js",
+          "startLine": 190,
+          "endLine": 217
+        }
+      ],
+      "afterRestoration": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.setup,post=ctx.postActivation,raw=window.ytInitialPlayerResponse||window.ytplayer?.config?.args?.player_response||null,response=(()=>{try{return typeof raw==='string'?JSON.parse(raw):raw;}catch{return raw;}})(),details=response?.videoDetails||window.ytInitialPlayerResponse?.videoDetails||{},delegated=String(window.ytcfg?.get?.('DELEGATED_SESSION_ID')||'').trim(),datasync=String(window.ytcfg?.get?.('DATASYNC_ID')||'').trim(),accountId=delegated||(datasync.includes('||')?datasync.split('||')[0]:datasync),current={accountId,fixtureId:ctx.observedAccount?.fixtureId,videoId:new URL(location.href).searchParams.get('v')||details.videoId||null,channelId:details.channelId||null},accountRebound=window.ytcfg?.get?.('LOGGED_IN')===true&&ctx.accountFixture&&ctx.observedAccount&&JSON.stringify(ctx.accountFixture)===JSON.stringify(ctx.observedAccount)&&JSON.stringify(current)===JSON.stringify(ctx.observedAccount),button=document.querySelector('dislike-button-view-model button[aria-pressed]'),nativeBaselineRestored=Boolean(button&&!button.disabled&&button.getAttribute('aria-pressed')===base?.priorPressed),store=ImprovedTube.storage||{},storedPresent=Object.prototype.hasOwnProperty.call(store,'blocklist')&&typeof store.blocklist!=='undefined',storedValue=storedPresent?JSON.parse(JSON.stringify(store.blocklist)):null,original=base?.originalBlocklist,blocklistBaselineRestored=Boolean(original&&storedPresent===original.present&&JSON.stringify(storedValue)===JSON.stringify(original.value)&&!storedValue?.videos?.[base.videoId]),anchor=post?.originalHref?[...document.querySelectorAll('#related a.ytd-thumbnail[href*=\"watch?v=\"]')].find(a=>a.getAttribute('href')===post.originalHref):null,blocked=anchor&&ImprovedTube.blocklistElementTypeHelper(anchor),renderedCardBaselineRestored=!anchor||Boolean(blocked&&!blocked.classList.contains('it-blocklisted-video')&&getComputedStyle(blocked).display!=='none'),ok=Boolean(base&&post&&accountRebound&&current.videoId===base.videoId&&nativeBaselineRestored&&blocklistBaselineRestored&&renderedCardBaselineRestored);return {ok,accountRebound,nativeBaselineRestored,blocklistBaselineRestored,originalBlocklistPresent:original?.present??null,restoredBlocklistPresent:storedPresent,matchingRenderedCardPresent:Boolean(anchor),renderedCardBaselineRestored};"
+      }
+    }
+  }
+}

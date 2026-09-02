@@ -1,0 +1,314 @@
+{
+  "schemaVersion": 1,
+  "menuSource": "menu/skeleton-parts/channel.js",
+  "contracts": {
+    "channel_compact_theme": {
+      "featureId": "IT-E8EE559F",
+      "storageKey": "channel_compact_theme",
+      "fixtureId": "channel.public",
+      "route": "channel",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "if(location.hostname!=='www.youtube.com'||!/^\\/@[^/]+$/.test(location.pathname))throw new Error('exact channel fixture unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "channel_compact_theme",
+        "value": true,
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,parent=document.querySelector(`#sections > ytd-guide-section-renderer:nth-child(${base.index+2}) > h3`),sub=document.querySelector(`#sections ytd-guide-section-renderer:nth-child(${base.index+2}) #items`),wait=async()=>{const end=Date.now()+3000;while(Date.now()<end){if(getComputedStyle(sub).display==='none'&&localStorage.getItem(base.key)==='true')return true;await new Promise(r=>setTimeout(r,100));}return false;};if(!parent||!sub)throw new Error('compact guide target unavailable');parent.click();return {ok:true,collapsed:await wait()};"
+      },
+      "beforeOracle": {
+        "script": "return {guideSectionCollapsed:false};"
+      },
+      "afterOracle": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,sub=document.querySelector(`#sections ytd-guide-section-renderer:nth-child(${base.index+2}) #items`);return {guideSectionCollapsed:Boolean(sub&&getComputedStyle(sub).display==='none'&&localStorage.getItem(base.key)==='true')};"
+      },
+      "oracle": {
+        "kind": "visibility",
+        "relation": "changed_to",
+        "target": "guideSectionCollapsed",
+        "expected": true
+      },
+      "prerequisites": [
+        "The channel fixture must expose a visible guide section with its compact localStorage state not already true.",
+        "The real product listener is clicked once; cleanup proves the exact display and localStorage baseline before runtime restoration."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "channel_compact_theme"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "postActivation": {
+        "script": "const button=document.querySelector('#guide-button'),drawer=document.querySelector('tp-yt-app-drawer#guide'),guideWasOpen=Boolean(drawer?.opened||drawer?.hasAttribute('opened'));if(!guideWasOpen){if(!button)throw new Error('guide button unavailable');button.click();}const end=Date.now()+3000;while(Date.now()<end){for(let index=0;index<3;index++){const parent=document.querySelector(`#sections > ytd-guide-section-renderer:nth-child(${index+2}) > h3`),sub=document.querySelector(`#sections ytd-guide-section-renderer:nth-child(${index+2}) #items`),key=`ImprovedTube-compact-${index}`,value=localStorage.getItem(key);if(parent&&sub&&getComputedStyle(sub).display!=='none'&&value!=='true'){await new Promise(r=>setTimeout(r,1000));return {ok:true,verified:true,index,key,had:value!==null,value,display:sub.style.display,guideWasOpen};}}await new Promise(r=>setTimeout(r,100));}throw new Error('reversible compact guide section unavailable');"
+      },
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation;if(!base)return {ok:false};const parent=document.querySelector(`#sections > ytd-guide-section-renderer:nth-child(${base.index+2}) > h3`),sub=document.querySelector(`#sections ytd-guide-section-renderer:nth-child(${base.index+2}) #items`);if(!parent||!sub)return {ok:false};if(getComputedStyle(sub).display==='none')parent.click();base.had?localStorage.setItem(base.key,base.value):localStorage.removeItem(base.key);sub.style.display=base.display;if(!base.guideWasOpen)document.querySelector('#guide-button')?.click();return {ok:sub.style.display===base.display&&localStorage.getItem(base.key)===(base.had?base.value:null)};"
+      },
+      "sideEffectState": {
+        "localStorageKeys": [
+          "ImprovedTube-compact-0",
+          "ImprovedTube-compact-1",
+          "ImprovedTube-compact-2"
+        ]
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/channel.js",
+          "startLine": 148,
+          "endLine": 238
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "channel_default_tab": {
+      "featureId": "IT-0E08641E",
+      "storageKey": "channel_default_tab",
+      "fixtureId": "channel.public",
+      "route": "channel",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const a=[...document.querySelectorAll('a[href]')].find(a=>/^\\/@[^/]+$/.test(new URL(a.href,location.origin).pathname));if(location.hostname!=='www.youtube.com'||!a)throw new Error('channel home link unavailable');const url=new URL(a.href,location.origin),pageUrl=location.pathname+location.search+location.hash;return {ok:true,path:url.pathname,homeHref:a.href,pageUrl,tab:'home'};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "channel_default_tab",
+        "value": "/videos",
+        "script": "const ctx=arguments[arguments.length-1],path=ctx.setup?.path,a=[...document.querySelectorAll('a[href]')].find(n=>new URL(n.href,location.origin).pathname===path);if(!a)throw new Error('channel link unavailable after activation reload');ImprovedTube.channelDefaultTab(a);window.__itE2EChannelLink=a;return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "const a=window.__itE2EChannelLink;return {channelLink:a?.href||null};"
+      },
+      "afterOracle": {
+        "script": "const a=window.__itE2EChannelLink;return {channelLink:a?.href||null};"
+      },
+      "oracle": {
+        "kind": "navigation",
+        "relation": "url_matches",
+        "target": "channelLink",
+        "expected": "/videos(?:[/?#]|$)"
+      },
+      "prerequisites": [
+        "A same-channel home link must exist; the contract observes its rewritten destination without navigating.",
+        "Setup captures the exact channel URL, home-link destination, and URL-derived home tab before storage activation.",
+        "After exact storage restoration and fixture refresh, a sentinel-free observer proves the exact channel URL, home-link destination, and selected or URL-derived home tab state."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "channel_default_tab"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/channel.js",
+          "startLine": 9,
+          "endLine": 21
+        }
+      ],
+      "dependencyValues": {},
+      "afterRestoration": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.setup,pageUrl=location.pathname+location.search+location.hash,home=[...document.querySelectorAll('a[href]')].find(a=>a.href===base?.homeHref),selected=document.querySelector('yt-tab-shape[aria-selected=\"true\"],tp-yt-paper-tab[selected],ytd-tab-renderer[aria-selected=\"true\"]'),selectedAnchor=selected?.querySelector('a[href]'),selectedPath=selectedAnchor?new URL(selectedAnchor.href,location.origin).pathname:null,urlTab=base&&location.pathname===base.path?'home':location.pathname.slice((base?.path||'').length+1).split('/')[0]||null,routeRestored=Boolean(base&&pageUrl===base.pageUrl&&location.pathname===base.path),homeLinkRestored=Boolean(home&&new URL(home.href,location.origin).pathname===base.path&&!/\\/videos(?:[/?#]|$)/.test(home.href)),tabRestored=urlTab===base?.tab&&(!selectedPath||selectedPath===base.path),ok=routeRestored&&homeLinkRestored&&tabRestored;return {ok,pageUrl,routeRestored,homeLinkRestored,urlTab,selectedTabPath:selectedPath,tabRestored};"
+      }
+    },
+    "channel_hide_featured_content": {
+      "storageKey": "channel_hide_featured_content",
+      "applicability": "not_applicable",
+      "reason": "Reviewed N/A: current YouTube channel pages no longer render either legacy featured-secondary selector targeted by this CSS."
+    },
+    "channel_play_all_button": {
+      "featureId": "IT-58A1E09E",
+      "storageKey": "channel_play_all_button",
+      "fixtureId": "channel.videos",
+      "route": "channel",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const container=document.querySelector('ytd-channel-sub-menu-renderer #primary-items,ytd-two-column-browse-results-renderer #chips-content'),id=document.querySelector('ytd-app')?.__data?.data?.response?.metadata?.channelMetadataRenderer?.externalId;return {ok:true,containerPresent:Boolean(container),channelIdPresent:Boolean(id),existingPresent:Boolean(document.querySelector('.it-play-all-button'))};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "channel_play_all_button",
+        "value": true,
+        "script": "try{ImprovedTube.channelPlayAllButton();return {ok:true,productError:null};}catch(error){return {ok:true,productError:{name:error?.name||null,message:error?.message||String(error)}};}"
+      },
+      "beforeOracle": {
+        "script": "return {playAllButtonPresent:Boolean(document.querySelector('.it-play-all-button'))};"
+      },
+      "afterOracle": {
+        "script": "const b=document.querySelector('.it-play-all-button');return {playAllButtonPresent:Boolean(b),playAllHref:b?.href||null};"
+      },
+      "oracle": {
+        "kind": "presence",
+        "relation": "changed_to",
+        "target": "playAllButtonPresent",
+        "expected": true
+      },
+      "prerequisites": [
+        "The channel metadata must expose an uploads ID and rendered action container.",
+        "The control is not clicked; exact storage restoration removes the run-owned helper."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "channel_play_all_button"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/channel.js",
+          "startLine": 84,
+          "endLine": 143
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "channel_trailer_autoplay": {
+      "featureId": "IT-ABD71E5C",
+      "storageKey": "channel_trailer_autoplay",
+      "fixtureId": "channel.public",
+      "route": "channel",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const v=document.querySelector('video');if(!/^\\/@[^/]+$/.test(location.pathname)||!v||v.paused)throw new Error('autoplaying channel trailer unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "channel_trailer_autoplay",
+        "value": false,
+        "script": "const v=document.querySelector('video');v.dispatchEvent(new Event('loadedmetadata'));await new Promise(r=>setTimeout(r,300));return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "const v=document.querySelector('video');return {trailerPaused:Boolean(v?.paused)};"
+      },
+      "afterOracle": {
+        "script": "const v=document.querySelector('video');return {trailerPaused:Boolean(v?.paused)};"
+      },
+      "oracle": {
+        "kind": "selected_state",
+        "relation": "changed_to",
+        "target": "trailerPaused",
+        "expected": true
+      },
+      "prerequisites": [
+        "A real autoplaying trailer on the exact channel home route is required; absent or paused media is UNVERIFIED.",
+        "The real media loadedmetadata handler is dispatched and fixture refresh restores playback state."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "channel_trailer_autoplay"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/functions.js",
+          "startLine": 417,
+          "endLine": 431
+        }
+      ],
+      "postActivation": {
+        "script": "const end=Date.now()+5000;let v;while(Date.now()<end){v=document.querySelector('video');if(v&&v.readyState>=1)return {ok:true,verified:true};await new Promise(r=>setTimeout(r,100));}return {ok:false,verified:false,reason:'activated trailer unavailable'};"
+      },
+      "dependencyValues": {}
+    },
+    "exclude_shorts_in_play_all": {
+      "featureId": "IT-1720DC76",
+      "storageKey": "exclude_shorts_in_play_all",
+      "fixtureId": "channel.public",
+      "route": "channel",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const key='ImprovedTube-E2E-exclude-shorts',prior=sessionStorage.getItem(key),nodes=[...document.querySelectorAll('ytd-rich-item-renderer,ytd-grid-video-renderer,ytd-video-renderer,ytd-compact-video-renderer')],regular=nodes.map(n=>n.querySelector('a#thumbnail,a.yt-simple-endpoint[href*=\"/watch\"]')).filter(Boolean),shorts=document.querySelector('ytd-reel-video-renderer,a[href*=\"/shorts/\"]');if(!regular.length||!shorts)throw new Error('mixed regular/Shorts channel collection unavailable');return {ok:true,key,had:prior!==null,prior};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "exclude_shorts_in_play_all",
+        "value": true,
+        "script": "ImprovedTube.messages.send({action:'set',key:'channel_play_all_button',value:true});await new Promise(r=>setTimeout(r,300));document.querySelector('.it-play-all-button')?.remove();ImprovedTube.channelPlayAllButton();const b=document.querySelector('.it-play-all-button');if(!b)throw new Error('play-all button unavailable');const isShort=n=>{const a=n.querySelector('a#thumbnail,a.yt-simple-endpoint[href]'),h=a?.getAttribute('href')||'',tag=(n.tagName||'').toLowerCase(),badges=[...n.querySelectorAll('ytd-badge-supported-renderer,.badge,.shorts-badge')].map(x=>(x.textContent||'').toLowerCase()).join(' ');return h.startsWith('/shorts/')||/\\/shorts\\//.test(h)||tag==='ytd-reel-video-renderer'||tag.includes('reel')||badges.includes('shorts')||/\\/shorts\\//.test(a?.dataset?.href||'')};const ids=[];for(const n of document.querySelectorAll('ytd-rich-item-renderer,ytd-grid-video-renderer,ytd-video-renderer,ytd-compact-video-renderer')){if(isShort(n))continue;const a=n.querySelector('a#thumbnail,a.yt-simple-endpoint[href*=\"/watch\"]');const id=a?new URL(a.href,location.origin).searchParams.get('v'):null;if(id)ids.push(id);if(ids.length>=50)break;}const ctx=arguments[arguments.length-1],key=ctx.setup.key;sessionStorage.setItem(key,JSON.stringify({ids}));setTimeout(()=>b.click(),0);return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "return {destinationHasExactRegularIds:false};"
+      },
+      "afterOracle": {
+        "script": "const ctx=arguments[arguments.length-1],state=JSON.parse(sessionStorage.getItem(ctx.setup.key)||'null'),actual=new URL(location.href).searchParams.get('video_ids')?.split(',').filter(Boolean)||[],ok=Boolean(state?.ids?.length&&location.pathname==='/watch_videos'&&actual.join(',')===state.ids.join(','));return {destinationHasExactRegularIds:ok};"
+      },
+      "oracle": {
+        "kind": "navigation",
+        "relation": "changed_to",
+        "target": "destinationHasExactRegularIds",
+        "expected": true
+      },
+      "prerequisites": [
+        "The exact channel fixture must contain both regular cards and Shorts cards.",
+        "Only the run-owned Play all navigation is exercised; sessionStorage is restored exactly and no account data changes."
+      ],
+      "dependencyKeys": [
+        "channel_play_all_button"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "exclude_shorts_in_play_all",
+        "channel_play_all_button"
+      ],
+      "settle": {
+        "timeoutMs": 10000,
+        "pollMs": 250
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.setup;if(!base)return {ok:false};base.had?sessionStorage.setItem(base.key,base.prior):sessionStorage.removeItem(base.key);return {ok:sessionStorage.getItem(base.key)===(base.had?base.prior:null)};"
+      },
+      "dependencyValues": {
+        "channel_play_all_button": true
+      },
+      "sideEffectState": {
+        "sessionStorageKeys": [
+          "ImprovedTube-E2E-exclude-shorts"
+        ]
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/channel.js",
+          "startLine": 27,
+          "endLine": 79
+        },
+        {
+          "path": "js&css/web-accessible/www.youtube.com/channel.js",
+          "startLine": 84,
+          "endLine": 143
+        }
+      ]
+    }
+  }
+}

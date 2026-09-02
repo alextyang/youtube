@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "menuSource": "menu/skeleton-parts/mixer.js",
+  "contracts": {
+    "mixer_playback_speed": {
+      "storageKey": "mixer_playback_speed",
+      "applicability": "not_applicable",
+      "reason": "Reviewed N/A: this storage:false cross-tab menu helper depends on the page-world mixer response, but the only core.js mixer responder is commented out, so no active path can bind a real YouTube video or provide a safe media oracle; do not claim a slider effect from menu state alone."
+    },
+    "mixer_volume": {
+      "storageKey": "mixer_volume",
+      "applicability": "not_applicable",
+      "reason": "Reviewed N/A: this storage:false cross-tab menu helper depends on the page-world mixer response, but the only core.js mixer responder is commented out, so no active path can bind a real YouTube video or provide a safe media oracle; do not claim a slider effect from menu state alone."
+    }
+  }
+}

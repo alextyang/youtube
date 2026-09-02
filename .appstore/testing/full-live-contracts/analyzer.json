@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "menuSource": "menu/skeleton-parts/analyzer.js",
+  "contracts": {
+    "analyzer_activation": {
+      "featureId": "IT-40D22DA2",
+      "storageKey": "analyzer_activation",
+      "fixtureId": "watch.base",
+      "route": "watch",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "if(location.pathname!=='/watch'||!document.querySelector('#player video'))throw new Error('watch analyzer fixture unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "analyzer_activation",
+        "value": true,
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,video=document.querySelector('#player video'),wait=async()=>{const end=Date.now()+5000;while(Date.now()<end){if(Number(ImprovedTube.storage.analyzer?.[base.date]?.[base.hour]?.[base.channel]||0)===base.before+1)return true;await new Promise(r=>setTimeout(r,100));}return false;};video.pause();if(!await wait())throw new Error('extension analyzer consumer did not persist exact +1 delta');return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "return {consumerCollectionIncremented:false};"
+      },
+      "afterOracle": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,value=Number(ImprovedTube.storage.analyzer?.[base.date]?.[base.hour]?.[base.channel]||0);return {consumerCollectionIncremented:value===base.before+1,channel:base.channel,value};"
+      },
+      "oracle": {
+        "kind": "side_effect",
+        "relation": "changed_to",
+        "target": "consumerCollectionIncremented",
+        "expected": true
+      },
+      "prerequisites": [
+        "The re-entered watch fixture must expose a playing real video and resolved channel metadata.",
+        "A real pause must reach the extension consumer and persist exactly +1 at the current date/hour/channel; runtime restores the exact analyzer collection."
+      ],
+      "dependencyKeys": [
+        "analyzer"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "analyzer_activation",
+        "analyzer"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "dependencyValues": {
+        "analyzer": {}
+      },
+      "postActivation": {
+        "script": "const video=document.querySelector('#player video'),channel=ImprovedTube?.elements?.yt_channel_name?.__data?.tooltipText,date=new Date().toDateString(),hour=new Date().getHours()+':00',before=Number(ImprovedTube.storage.analyzer?.[date]?.[hour]?.[channel]||0);if(!video||video.paused||!channel)throw new Error('playing analyzer consumer fixture unavailable');return {ok:true,verified:true,date,hour,channel,before,wasPaused:false};"
+      },
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],video=document.querySelector('#player video');if(ctx.postActivation?.wasPaused===false&&video?.paused){await video.play();const end=Date.now()+3000;while(Date.now()<end&&video.paused)await new Promise(r=>setTimeout(r,100));}return {ok:Boolean(video&&video.paused===ctx.postActivation?.wasPaused)};"
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/functions.js",
+          "startLine": 544,
+          "endLine": 554
+        },
+        {
+          "path": "js&css/extension/init.js",
+          "startLine": 190,
+          "endLine": 217
+        }
+      ]
+    }
+  }
+}

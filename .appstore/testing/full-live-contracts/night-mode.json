@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "menuSource": "menu/skeleton-parts/night-mode.js",
+  "contracts": {
+    "bluelight": {
+      "featureId": "IT-6B147079",
+      "storageKey": "bluelight",
+      "fixtureId": "watch.base",
+      "route": "watch",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const m=document.querySelector('#it-bluelight feColorMatrix')?.values?.baseVal?.[12]?.value;if(location.pathname!=='/watch'||!document.querySelector('#player video')||m===0.5)throw new Error('contrasting watch filter state unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "bluelight",
+        "value": 50,
+        "script": "ImprovedTube.messages.send({action:'set',key:'schedule',value:'system_peference_dark'});await new Promise(r=>setTimeout(r,300));return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "return {filterMatrixBlue:document.querySelector('#it-bluelight feColorMatrix')?.values?.baseVal?.[12]?.value??null};"
+      },
+      "afterOracle": {
+        "script": "return {filterMatrixBlue:document.querySelector('#it-bluelight feColorMatrix')?.values?.baseVal?.[12]?.value??null};"
+      },
+      "oracle": {
+        "kind": "attribute_style",
+        "relation": "within_tolerance",
+        "target": "filterMatrixBlue",
+        "expected": 0.5,
+        "tolerance": 0.01
+      },
+      "prerequisites": [
+        "The exact watch fixture must have real media and a contrasting filter matrix state.",
+        "Only bluelight and schedule storage keys are changed, isolated, and restored exactly."
+      ],
+      "dependencyKeys": [
+        "schedule"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "bluelight",
+        "schedule"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 150
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "dependencyValues": {
+        "schedule": "system_peference_dark"
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/extension/www.youtube.com/night-mode/night-mode.js",
+          "startLine": 18,
+          "endLine": 77
+        }
+      ]
+    },
+    "dim": {
+      "featureId": "IT-F7243983",
+      "storageKey": "dim",
+      "fixtureId": "watch.base",
+      "route": "watch",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const n=document.querySelector('#it-dim'),o=n?Number(getComputedStyle(n).opacity):null;if(location.pathname!=='/watch'||!document.querySelector('#player video')||o===0.5)throw new Error('contrasting watch dim state unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "dim",
+        "value": 50,
+        "script": "ImprovedTube.messages.send({action:'set',key:'schedule',value:'system_peference_dark'});await new Promise(r=>setTimeout(r,300));return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "const n=document.querySelector('#it-dim');return {overlayOpacity:n?Number(getComputedStyle(n).opacity):null};"
+      },
+      "afterOracle": {
+        "script": "const n=document.querySelector('#it-dim');return {overlayOpacity:n?Number(getComputedStyle(n).opacity):null};"
+      },
+      "oracle": {
+        "kind": "attribute_style",
+        "relation": "within_tolerance",
+        "target": "overlayOpacity",
+        "expected": 0.5,
+        "tolerance": 0.01
+      },
+      "prerequisites": [
+        "The exact watch fixture must have real media and a contrasting dim state.",
+        "Only dim and schedule storage keys are changed, isolated, and restored exactly."
+      ],
+      "dependencyKeys": [
+        "schedule"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "dim",
+        "schedule"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 150
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "dependencyValues": {
+        "schedule": "system_peference_dark"
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/extension/www.youtube.com/night-mode/night-mode.js",
+          "startLine": 83,
+          "endLine": 107
+        }
+      ]
+    },
+    "schedule": {
+      "featureId": "IT-541F4654",
+      "storageKey": "schedule",
+      "fixtureId": "watch.base",
+      "route": "watch",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const n=document.querySelector('#it-dim');if(location.pathname!=='/watch'||!document.querySelector('#player video')||(n&&Number(getComputedStyle(n).opacity)>0))throw new Error('undimmed watch fixture unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "schedule",
+        "value": "sunset_to_sunrise",
+        "script": "const wait=async(test,label)=>{const end=Date.now()+4000;while(Date.now()<end){if(test())return;await new Promise(r=>setTimeout(r,100));}throw new Error(label);};ImprovedTube.messages.send({action:'set',key:'schedule',value:'disabled'});ImprovedTube.messages.send({action:'set',key:'dim',value:50});await wait(()=>{const n=document.querySelector('#it-dim');return n&&Number(getComputedStyle(n).opacity)===0.5;},'control dim did not render');ImprovedTube.messages.send({action:'set',key:'dim',value:0});await wait(()=>!document.querySelector('#it-dim'),'control dim did not clear');ImprovedTube.messages.send({action:'set',key:'schedule',value:'sunset_to_sunrise'});ImprovedTube.messages.send({action:'set',key:'dim',value:50});await new Promise(r=>setTimeout(r,500));return {ok:true,controlDimWasVisible:true};"
+      },
+      "beforeOracle": {
+        "script": "return {scheduleBlocksWorkingDim:false};"
+      },
+      "afterOracle": {
+        "script": "const ctx=arguments[arguments.length-1],n=document.querySelector('#it-dim'),blocked=!n||Number(getComputedStyle(n).opacity)===0;return {scheduleBlocksWorkingDim:Boolean(ctx.activation?.script?.controlDimWasVisible&&ImprovedTube.storage.schedule==='sunset_to_sunrise'&&ImprovedTube.storage.dim===50&&blocked)};"
+      },
+      "oracle": {
+        "kind": "selected_state",
+        "relation": "changed_to",
+        "target": "scheduleBlocksWorkingDim",
+        "expected": true
+      },
+      "prerequisites": [
+        "The control phase must render and clear a real 50% dim overlay while schedule is disabled.",
+        "With equal 00:00 bounds, sunset_to_sunrise must suppress the same nonzero dim dependency; all four storage keys are restored exactly."
+      ],
+      "dependencyKeys": [
+        "dim",
+        "schedule_time_from",
+        "schedule_time_to"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "schedule",
+        "dim",
+        "schedule_time_from",
+        "schedule_time_to"
+      ],
+      "settle": {
+        "timeoutMs": 7000,
+        "pollMs": 150
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "dependencyValues": {
+        "dim": 0,
+        "schedule_time_from": "00:00",
+        "schedule_time_to": "00:00"
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/extension/www.youtube.com/night-mode/night-mode.js",
+          "startLine": 113,
+          "endLine": 128
+        },
+        {
+          "path": "js&css/extension/www.youtube.com/night-mode/night-mode.js",
+          "startLine": 83,
+          "endLine": 107
+        }
+      ]
+    }
+  }
+}

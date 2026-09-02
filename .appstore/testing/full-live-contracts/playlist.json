@@ -1,0 +1,584 @@
+{
+  "schemaVersion": 1,
+  "menuSource": "menu/skeleton-parts/playlist.js",
+  "contracts": {
+    "playlist_autoplay": {
+      "featureId": "IT-321DABF1",
+      "storageKey": "playlist_autoplay",
+      "fixtureId": "playlist.watch",
+      "route": "playlist",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const video=document.querySelector('#player video');if(location.hostname!=='www.youtube.com'||location.pathname!=='/watch'||!new URL(location.href).searchParams.get('list')||!document.querySelector('ytd-playlist-panel-renderer')||!video||video.paused)throw new Error('autoplaying watch-playlist fixture unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "playlist_autoplay",
+        "value": false,
+        "script": "const video=document.querySelector('#player video');video.dispatchEvent(new Event('loadedmetadata'));await new Promise(r=>setTimeout(r,300));return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "const video=document.querySelector('#player video');return {playlistAutoplaySuppressed:Boolean(video?.paused)};"
+      },
+      "afterOracle": {
+        "script": "const video=document.querySelector('#player video');return {playlistAutoplaySuppressed:Boolean(video?.paused)};"
+      },
+      "oracle": {
+        "kind": "selected_state",
+        "relation": "changed_to",
+        "target": "playlistAutoplaySuppressed",
+        "expected": true
+      },
+      "prerequisites": [
+        "playlist.watch must expose an autoplaying real video and rendered playlist panel; a paused fixture is UNVERIFIED.",
+        "The activation dispatches the real media loadedmetadata handler and fixture refresh restores media state."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "playlist_autoplay"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/functions.js",
+          "startLine": 417,
+          "endLine": 431
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "playlist_bulk_delete_by_progress": {
+      "featureId": "IT-585F9C4B",
+      "storageKey": "playlist_bulk_delete_by_progress",
+      "fixtureId": "playlist.public",
+      "route": "playlist",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const ids=[...document.querySelectorAll('ytd-playlist-video-renderer')].map(n=>new URL(n.querySelector('a[href*=\"watch\"]')?.href||location.href).searchParams.get('v')).filter(Boolean);if(location.hostname!=='www.youtube.com'||location.pathname!=='/playlist'||!document.querySelector('ytd-browse')||!ids.length)throw new Error('verified browse playlist rows unavailable');return {ok:true,ids};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "playlist_bulk_delete_by_progress",
+        "value": true
+      },
+      "beforeOracle": {
+        "script": "return {bulkDeleteControl:Boolean(document.querySelector('#it-playlist-cleaner-controls button'))};"
+      },
+      "afterOracle": {
+        "script": "return {bulkDeleteControl:Boolean(document.querySelector('#it-playlist-cleaner-controls button'))};"
+      },
+      "oracle": {
+        "kind": "presence",
+        "relation": "changed_to",
+        "target": "bulkDeleteControl",
+        "expected": true
+      },
+      "prerequisites": [
+        "Explicit destructive-risk gate and a dedicated disposable playlist owner are required.",
+        "No Remove control, menu removal, or playlist endpoint is invoked; exact storage restoration removes only the rendered helper."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "playlist_bulk_delete_by_progress"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "destructive",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],before=ctx.setup?.ids||[],after=[...document.querySelectorAll('ytd-playlist-video-renderer')].map(n=>new URL(n.querySelector('a[href*=\"watch\"]')?.href||location.href).searchParams.get('v')).filter(Boolean),ok=before.length===after.length&&before.every((id,i)=>id===after[i]);return {ok,verified:ok};"
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/playlist-complete-playlist.js",
+          "startLine": 590,
+          "endLine": 640
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "playlist_copy_video_id": {
+      "featureId": "IT-9981E576",
+      "storageKey": "playlist_copy_video_id",
+      "fixtureId": "playlist.watch",
+      "route": "playlist",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const link=document.querySelector('ytd-playlist-panel-video-renderer a#wc-endpoint[href*=\"watch\"]');if(location.pathname!=='/watch'||!link||!navigator.clipboard?.readText||!navigator.clipboard?.writeText)throw new Error('playlist panel clipboard fixture unavailable');const clipboard=await navigator.clipboard.readText();return {ok:true,clipboard};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "playlist_copy_video_id",
+        "value": true,
+        "script": "ImprovedTube.messages.send({action:'set',key:'playlist_copy_video_url',value:false});await new Promise(r=>setTimeout(r,300));ImprovedTube.playlistCopyVideoIdButton();return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "const link=document.querySelector('ytd-playlist-panel-video-renderer a#wc-endpoint[href*=\"watch\"]'),id=link?new URL(link.href).searchParams.get('v'):null,text=await navigator.clipboard.readText();return {clipboardMatchesVideoId:Boolean(id&&text===id)};"
+      },
+      "afterOracle": {
+        "script": "const ctx=arguments[arguments.length-1],row=document.querySelector('ytd-playlist-panel-video-renderer'),link=row?.querySelector('a#wc-endpoint[href*=\"watch\"]'),id=link?new URL(link.href).searchParams.get('v'):null,button=row?.querySelector('.it-playlist-copy-video-id');if(!button)throw new Error('copy ID button unavailable');button.click();await new Promise(r=>setTimeout(r,200));const text=await navigator.clipboard.readText();await navigator.clipboard.writeText(ctx.setup.clipboard);return {clipboardMatchesVideoId:Boolean(id&&text===id)};"
+      },
+      "oracle": {
+        "kind": "permission_artifact",
+        "relation": "changed_to",
+        "target": "clipboardMatchesVideoId",
+        "expected": true
+      },
+      "prerequisites": [
+        "Explicit permission-risk gate and clipboard read/write permission are required.",
+        "The script clicks only the first extension copy button and restores the exact original clipboard text before returning."
+      ],
+      "dependencyKeys": [
+        "playlist_copy_video_url"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "playlist_copy_video_id",
+        "playlist_copy_video_url"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "permission",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],expected=ctx.setup?.clipboard,actual=await navigator.clipboard.readText(),ok=typeof expected==='string'&&actual===expected;return {ok,verified:ok};"
+      },
+      "dependencyValues": {
+        "playlist_copy_video_url": false
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/playlist.js",
+          "startLine": 357,
+          "endLine": 394
+        }
+      ]
+    },
+    "playlist_copy_video_url": {
+      "featureId": "IT-2ACB1A02",
+      "storageKey": "playlist_copy_video_url",
+      "fixtureId": "playlist.watch",
+      "route": "playlist",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const link=document.querySelector('ytd-playlist-panel-video-renderer a#wc-endpoint[href*=\"watch\"]');if(location.pathname!=='/watch'||!link||!navigator.clipboard?.readText||!navigator.clipboard?.writeText)throw new Error('playlist panel clipboard fixture unavailable');const clipboard=await navigator.clipboard.readText();return {ok:true,clipboard};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "playlist_copy_video_url",
+        "value": true,
+        "script": "ImprovedTube.messages.send({action:'set',key:'playlist_copy_video_id',value:true});await new Promise(r=>setTimeout(r,300));ImprovedTube.playlistCopyVideoIdButton();return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "const text=await navigator.clipboard.readText();return {clipboardMatchesVideoUrl:/^https:\\/\\/www\\.youtube\\.com\\/watch\\?v=[A-Za-z0-9_-]{11}/.test(text)};"
+      },
+      "afterOracle": {
+        "script": "const ctx=arguments[arguments.length-1],button=document.querySelector('ytd-playlist-panel-video-renderer .it-playlist-copy-video-id');if(!button)throw new Error('copy URL button unavailable');button.click();await new Promise(r=>setTimeout(r,200));const text=await navigator.clipboard.readText();await navigator.clipboard.writeText(ctx.setup.clipboard);return {clipboardMatchesVideoUrl:/^https:\\/\\/www\\.youtube\\.com\\/watch\\?v=[A-Za-z0-9_-]{11}/.test(text)};"
+      },
+      "oracle": {
+        "kind": "permission_artifact",
+        "relation": "changed_to",
+        "target": "clipboardMatchesVideoUrl",
+        "expected": true
+      },
+      "prerequisites": [
+        "Explicit permission-risk gate and clipboard read/write permission are required.",
+        "playlist_copy_video_id is isolated as a dependency and the exact original clipboard text is restored before return."
+      ],
+      "dependencyKeys": [
+        "playlist_copy_video_id"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "playlist_copy_video_url",
+        "playlist_copy_video_id"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "permission",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],expected=ctx.setup?.clipboard,actual=await navigator.clipboard.readText(),ok=typeof expected==='string'&&actual===expected;return {ok,verified:ok};"
+      },
+      "dependencyValues": {
+        "playlist_copy_video_id": true
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/playlist.js",
+          "startLine": 357,
+          "endLine": 394
+        }
+      ]
+    },
+    "playlist_popup": {
+      "featureId": "IT-8836AE63",
+      "storageKey": "playlist_popup",
+      "fixtureId": "playlist.public",
+      "route": "playlist",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "if(location.pathname!=='/playlist'||!document.querySelector('ytd-browse')||!document.querySelector('ytd-playlist-video-renderer'))throw new Error('verified browse playlist unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "playlist_popup",
+        "value": true,
+        "script": "await new Promise(r=>setTimeout(r,300));const button=document.querySelector('#it-popup-playlist-button');if(!button)throw new Error('playlist popup button unavailable');const original=window.open;window.__itE2EWindowOpenOriginal=original;try{window.__itE2EPopup=null;window.open=function(url,...args){const handle=original.call(window,url,...args);window.__itE2EPopup={url:String(url),handle};return handle;};button.click();}finally{window.open=original;}return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "return {popupUrl:null};"
+      },
+      "afterOracle": {
+        "script": "const popup=window.__itE2EPopup;if(!popup?.url)throw new Error('run-owned popup was not opened');try{popup.handle?.close();}finally{window.__itE2EPopupClosed=Boolean(!popup.handle||popup.handle.closed);window.__itE2EPopup=null;}return {popupUrl:popup.url};"
+      },
+      "oracle": {
+        "kind": "navigation",
+        "relation": "url_matches",
+        "target": "popupUrl",
+        "expected": "^https://www\\.youtube\\.com/embed/(?:videoseries|[A-Za-z0-9_-]+)"
+      },
+      "prerequisites": [
+        "Explicit popup permission gate is required.",
+        "window.open is restored in a finally block and only the captured run-owned popup handle is closed."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "playlist_popup"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "permission",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "cleanup": {
+        "script": "const popup=window.__itE2EPopup;if(popup?.handle&&!popup.handle.closed)popup.handle.close();await new Promise(r=>setTimeout(r,100));const ok=window.open===window.__itE2EWindowOpenOriginal&&(!popup?.handle||popup.handle.closed)&&window.__itE2EPopupClosed===true;delete window.__itE2EWindowOpenOriginal;delete window.__itE2EPopupClosed;delete window.__itE2EPopup;return {ok,verified:ok};"
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/playlist.js",
+          "startLine": 276,
+          "endLine": 337
+        },
+        {
+          "path": "js&css/web-accessible/www.youtube.com/playlist.js",
+          "startLine": 403,
+          "endLine": 429
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "playlist_quick_delete_shortcut": {
+      "featureId": "IT-48DFB627",
+      "storageKey": "playlist_quick_delete_shortcut",
+      "fixtureId": "playlist.public",
+      "route": "playlist",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const ids=[...document.querySelectorAll('ytd-playlist-video-renderer')].map(n=>new URL(n.querySelector('a[href*=\"watch\"]')?.href||location.href).searchParams.get('v')).filter(Boolean);if(location.hostname!=='www.youtube.com'||location.pathname!=='/playlist'||!document.querySelector('ytd-browse')||!ids.length)throw new Error('verified browse playlist rows unavailable');return {ok:true,ids};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "playlist_quick_delete_shortcut",
+        "value": true
+      },
+      "beforeOracle": {
+        "script": "return {quickDeleteControl:Boolean(document.querySelector('ytd-playlist-video-renderer button[title=\"Remove this video from playlist\"]'))};"
+      },
+      "afterOracle": {
+        "script": "return {quickDeleteControl:Boolean(document.querySelector('ytd-playlist-video-renderer button[title=\"Remove this video from playlist\"]'))};"
+      },
+      "oracle": {
+        "kind": "presence",
+        "relation": "changed_to",
+        "target": "quickDeleteControl",
+        "expected": true
+      },
+      "prerequisites": [
+        "Explicit destructive-risk gate and a dedicated disposable playlist owner are required.",
+        "The script never clicks the delete control or invokes a playlist mutation; exact storage restoration removes the helper."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "playlist_quick_delete_shortcut"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "destructive",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],before=ctx.setup?.ids||[],after=[...document.querySelectorAll('ytd-playlist-video-renderer')].map(n=>new URL(n.querySelector('a[href*=\"watch\"]')?.href||location.href).searchParams.get('v')).filter(Boolean),ok=before.length===after.length&&before.every((id,i)=>id===after[i]);return {ok,verified:ok};"
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/playlist-complete-playlist.js",
+          "startLine": 359,
+          "endLine": 450
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "playlist_repeat": {
+      "featureId": "IT-E8D86E76",
+      "storageKey": "playlist_repeat",
+      "fixtureId": "playlist.watch",
+      "route": "playlist",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "if(location.pathname!=='/watch'||!document.querySelector('#player video')||!document.querySelector('ytd-playlist-panel-renderer'))throw new Error('watch playlist fixture unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "playlist_repeat",
+        "value": true
+      },
+      "beforeOracle": {
+        "script": "const b=document.querySelector('#button.ytd-playlist-loop-button-renderer,ytd-playlist-loop-button-renderer button,ytd-playlist-loop-button-renderer'),n=b?.querySelector('button[aria-pressed]')||b;return {loopEnabled:n?.getAttribute('aria-pressed')==='true'};"
+      },
+      "afterOracle": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,b=document.querySelector('#button.ytd-playlist-loop-button-renderer,ytd-playlist-loop-button-renderer button,ytd-playlist-loop-button-renderer'),n=b?.querySelector('button[aria-pressed]')||b,path=b?.querySelector('path')?.getAttribute('d')||null;return {loopEnabled:Boolean(base&&path&&path!==base.path&&(base.aria===null||n?.getAttribute('aria-pressed')!==base.aria))};"
+      },
+      "oracle": {
+        "kind": "selected_state",
+        "relation": "changed_to",
+        "target": "loopEnabled",
+        "expected": true
+      },
+      "prerequisites": [
+        "playlist.watch must expose the caller's initially unselected native loop control.",
+        "Cleanup toggles the same native control once when needed and proves its exact aria/path state returned to baseline."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "playlist_repeat"
+      ],
+      "settle": {
+        "timeoutMs": 15000,
+        "pollMs": 250
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "postActivation": {
+        "script": "const b=document.querySelector('#button.ytd-playlist-loop-button-renderer,ytd-playlist-loop-button-renderer button,ytd-playlist-loop-button-renderer'),n=b?.querySelector('button[aria-pressed]')||b,path=b?.querySelector('path')?.getAttribute('d')||null,aria=n?.getAttribute('aria-pressed')??null;if(!b||!n||!path||!path.startsWith('M21')||aria==='true')throw new Error('reversible native loop baseline unavailable');return {ok:true,verified:true,path,aria};"
+      },
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,b=document.querySelector('#button.ytd-playlist-loop-button-renderer,ytd-playlist-loop-button-renderer button,ytd-playlist-loop-button-renderer'),n=b?.querySelector('button[aria-pressed]')||b,path=()=>b?.querySelector('path')?.getAttribute('d')||null,exact=()=>base&&path()===base.path&&n?.getAttribute('aria-pressed')===base.aria,wait=async()=>{const end=Date.now()+5000;while(Date.now()<end){if(exact())return true;await new Promise(r=>setTimeout(r,100));}return false;};if(!base||!b||!n)return {ok:false};if(!exact())b.click();return {ok:await wait()};"
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/playlist.js",
+          "startLine": 227,
+          "endLine": 241
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "playlist_reverse": {
+      "featureId": "IT-9725DDD1",
+      "storageKey": "playlist_reverse",
+      "fixtureId": "playlist.watch",
+      "route": "playlist",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "if(location.pathname!=='/watch'||!document.querySelector('#player video')||!document.querySelector('ytd-playlist-panel-renderer'))throw new Error('watch playlist fixture unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "playlist_reverse",
+        "value": true,
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,read=()=>{const p=ImprovedTube.elements.ytd_watch?.data?.contents?.twoColumnWatchNextResults?.playlist?.playlist;return (p?.contents||[]).map(x=>(x.playlistPanelVideoRenderer||x.playlistVideoRenderer)?.videoId).filter(Boolean);},want=[...base.ids].reverse(),wait=async()=>{const end=Date.now()+5000;while(Date.now()<end){const a=read();if(a.length===want.length&&a.every((id,i)=>id===want[i]))return true;await new Promise(r=>setTimeout(r,100));}return false;},b=document.querySelector('#it-reverse-playlist');if(!base||!b||ImprovedTube.playlistReversed!==false)throw new Error('reversible reverse state unavailable');b.click();if(!await wait())throw new Error('playlist data did not reverse exactly');return {ok:true};"
+      },
+      "beforeOracle": {
+        "script": "return {playlistReversedCorrect:false};"
+      },
+      "afterOracle": {
+        "script": "const ctx=arguments[arguments.length-1],before=ctx.postActivation?.ids||[],p=ImprovedTube.elements.ytd_watch?.data?.contents?.twoColumnWatchNextResults?.playlist?.playlist,after=(p?.contents||[]).map(x=>(x.playlistPanelVideoRenderer||x.playlistVideoRenderer)?.videoId).filter(Boolean);return {playlistReversedCorrect:ImprovedTube.playlistReversed===true&&after.length===before.length&&after.every((id,i)=>id===before[before.length-1-i])};"
+      },
+      "oracle": {
+        "kind": "collection_filter",
+        "relation": "changed_to",
+        "target": "playlistReversedCorrect",
+        "expected": true
+      },
+      "prerequisites": [
+        "playlist.watch must expose caller-valid watch data with playlist and autoplay collections plus at least two stable IDs.",
+        "The oracle requires exact reversal; cleanup toggles the same control and proves exact order and index restoration."
+      ],
+      "dependencyKeys": [
+        "playlist_reversed_active"
+      ],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "playlist_reverse",
+        "playlist_reversed_active"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "postActivation": {
+        "script": "const results=ImprovedTube.elements.ytd_watch?.data?.contents?.twoColumnWatchNextResults,playlist=results?.playlist?.playlist,autoplay=results?.autoplay?.autoplay,ids=(playlist?.contents||[]).map(x=>(x.playlistPanelVideoRenderer||x.playlistVideoRenderer)?.videoId).filter(Boolean),button=document.querySelector('#it-reverse-playlist');if(!playlist||!autoplay||ids.length<2||!button||ImprovedTube.playlistReversed!==false)throw new Error('caller-valid reversible watch playlist unavailable');return {ok:true,verified:true,ids,currentIndex:playlist.currentIndex,localCurrentIndex:playlist.localCurrentIndex};"
+      },
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,read=()=>{const p=ImprovedTube.elements.ytd_watch?.data?.contents?.twoColumnWatchNextResults?.playlist?.playlist;return {p,ids:(p?.contents||[]).map(x=>(x.playlistPanelVideoRenderer||x.playlistVideoRenderer)?.videoId).filter(Boolean)};},same=a=>base&&a.ids.length===base.ids.length&&a.ids.every((id,i)=>id===base.ids[i]),wait=async()=>{const end=Date.now()+5000;while(Date.now()<end){const a=read();if(same(a)&&a.p.currentIndex===base.currentIndex&&a.p.localCurrentIndex===base.localCurrentIndex&&ImprovedTube.playlistReversed===false)return true;await new Promise(r=>setTimeout(r,100));}return false;},now=read(),reversed=base&&now.ids.length===base.ids.length&&now.ids.every((id,i)=>id===base.ids[base.ids.length-1-i]);if(!base)return {ok:false};if(!same(now)){if(!reversed)return {ok:false};const b=document.querySelector('#it-reverse-playlist');if(!b)return {ok:false};b.click();}return {ok:await wait()};"
+      },
+      "dependencyValues": {
+        "playlist_reversed_active": false
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/playlist.js",
+          "startLine": 83,
+          "endLine": 190
+        }
+      ]
+    },
+    "playlist_shuffle": {
+      "featureId": "IT-5E2B921D",
+      "storageKey": "playlist_shuffle",
+      "fixtureId": "playlist.watch",
+      "route": "playlist",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "if(location.pathname!=='/watch'||!document.querySelector('#player video')||!document.querySelector('ytd-playlist-panel-renderer'))throw new Error('watch playlist fixture unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "playlist_shuffle",
+        "value": true
+      },
+      "beforeOracle": {
+        "script": "return {shuffleEnabledAndPermutation:false};"
+      },
+      "afterOracle": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,b=document.querySelector('#playlist-actions #playlist-action-menu ytd-toggle-button-renderer'),n=b?.querySelector('button[aria-pressed]')||b,path=b?.querySelector('path')?.getAttribute('d')||null,order=[...document.querySelectorAll('ytd-playlist-panel-video-renderer')].map(x=>new URL(x.querySelector('a[href*=\"watch\"]')?.href||location.href).searchParams.get('v')).filter(Boolean),members=base&&order.length===base.ids.length&&[...order].sort().join(',')===[...base.ids].sort().join(',');return {shuffleEnabledAndPermutation:Boolean(base&&members&&order.some((id,i)=>id!==base.ids[i])&&path!==base.path&&(base.aria===null||n?.getAttribute('aria-pressed')!==base.aria))};"
+      },
+      "oracle": {
+        "kind": "collection_filter",
+        "relation": "changed_to",
+        "target": "shuffleEnabledAndPermutation",
+        "expected": true
+      },
+      "prerequisites": [
+        "playlist.watch must expose at least three stable IDs and the caller's initially unselected native shuffle control.",
+        "The assertion requires the exact native path/aria transition plus an exact permutation; cleanup toggles off and proves the original order."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "playlist_shuffle"
+      ],
+      "settle": {
+        "timeoutMs": 15000,
+        "pollMs": 250
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "postActivation": {
+        "script": "const b=document.querySelector('#playlist-actions #playlist-action-menu ytd-toggle-button-renderer'),n=b?.querySelector('button[aria-pressed]')||b,path=b?.querySelector('path')?.getAttribute('d')||null,aria=n?.getAttribute('aria-pressed')??null,ids=[...document.querySelectorAll('ytd-playlist-panel-video-renderer')].map(x=>new URL(x.querySelector('a[href*=\"watch\"]')?.href||location.href).searchParams.get('v')).filter(Boolean);if(!b||!n||!path?.startsWith('M18.1')||aria==='true'||ids.length<3)throw new Error('reversible native shuffle baseline unavailable');return {ok:true,verified:true,path,aria,ids};"
+      },
+      "cleanup": {
+        "script": "const ctx=arguments[arguments.length-1],base=ctx.postActivation,b=document.querySelector('#playlist-actions #playlist-action-menu ytd-toggle-button-renderer'),n=b?.querySelector('button[aria-pressed]')||b,path=()=>b?.querySelector('path')?.getAttribute('d')||null,order=()=>[...document.querySelectorAll('ytd-playlist-panel-video-renderer')].map(x=>new URL(x.querySelector('a[href*=\"watch\"]')?.href||location.href).searchParams.get('v')).filter(Boolean),exact=()=>{const a=order();return base&&path()===base.path&&n?.getAttribute('aria-pressed')===base.aria&&a.length===base.ids.length&&a.every((id,i)=>id===base.ids[i]);},wait=async()=>{const end=Date.now()+5000;while(Date.now()<end){if(exact())return true;await new Promise(r=>setTimeout(r,100));}return false;};if(!base||!b||!n)return {ok:false};if(!exact())b.click();return {ok:await wait()};"
+      },
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/playlist.js",
+          "startLine": 248,
+          "endLine": 259
+        }
+      ],
+      "dependencyValues": {}
+    },
+    "playlist_up_next_autoplay": {
+      "featureId": "IT-3F6CCE51",
+      "storageKey": "playlist_up_next_autoplay",
+      "fixtureId": "playlist.watch",
+      "route": "playlist",
+      "surface": "youtube-page",
+      "applicability": "applicable",
+      "setup": {
+        "script": "const d=document.querySelector('ytd-watch-flexy')?.playlistData;if(location.pathname!=='/watch'||!document.querySelector('#player video')||!document.querySelector('ytd-playlist-panel-renderer')||!d||!d.currentIndex||!d.localCurrentIndex||!d.totalVideos||d.currentIndex===d.totalVideos)throw new Error('observable playlistData unavailable');return {ok:true};"
+      },
+      "activation": {
+        "kind": "storage",
+        "key": "playlist_up_next_autoplay",
+        "value": false
+      },
+      "beforeOracle": {
+        "script": "const d=document.querySelector('ytd-watch-flexy')?.playlistData;return {upNextBlocked:Boolean(d&&d.currentIndex===d.totalVideos)};"
+      },
+      "afterOracle": {
+        "script": "const d=document.querySelector('ytd-watch-flexy')?.playlistData;return {upNextBlocked:Boolean(d&&d.currentIndex===d.totalVideos)};"
+      },
+      "oracle": {
+        "kind": "selected_state",
+        "relation": "changed_to",
+        "target": "upNextBlocked",
+        "expected": true
+      },
+      "prerequisites": [
+        "playlist.watch must expose nonzero currentIndex, localCurrentIndex, totalVideos, and a next item.",
+        "Only in-memory YouTube playlist state changes; fixture refresh restores it."
+      ],
+      "dependencyKeys": [],
+      "sideEffectKeys": [],
+      "restoreScope": [
+        "playlist_up_next_autoplay"
+      ],
+      "settle": {
+        "timeoutMs": 8000,
+        "pollMs": 200
+      },
+      "risk": "safe",
+      "contractVersion": 1,
+      "contractSource": "curated",
+      "sourceRefs": [
+        {
+          "path": "js&css/web-accessible/www.youtube.com/playlist.js",
+          "startLine": 7,
+          "endLine": 18
+        }
+      ],
+      "dependencyValues": {}
+    }
+  }
+}
