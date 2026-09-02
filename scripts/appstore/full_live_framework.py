@@ -514,7 +514,7 @@ def dispatch_oracle(spec: OracleSpec | Mapping[str, Any] | str, before: Any, aft
     if item.relation == "changed_to":
         matched = before_value != after_value and (expected is MISSING or after_value == expected)
     elif item.relation == "equals":
-        matched = expected is not MISSING and after_value == expected
+        matched = expected is not MISSING and before_value != expected and after_value == expected
     elif item.relation == "not_present":
         matched = after_value is MISSING or after_value is None or after_value is False or (isinstance(after_value, Mapping) and after_value.get("present") is False)
     elif item.relation == "contains":
@@ -1142,6 +1142,8 @@ def load_contract_file(path: str | Path) -> dict[str, ContractSpec]:
                     raise ValueError(str(path) + ": contract " + key + " oracle target must be an observation field path")
                 if oracle["relation"] != "not_present" and "expected" not in oracle:
                     raise ValueError(str(path) + ": contract " + key + " oracle relation requires expected")
+                if oracle["relation"] == "equals" and "preActivationValue" not in value:
+                    raise ValueError(str(path) + ": contract " + key + " equals oracle requires a neutral preActivationValue")
                 if oracle["relation"] == "within_tolerance" and (
                     type(oracle.get("expected")) not in {int, float}
                     or type(oracle.get("tolerance")) not in {int, float}
@@ -1507,6 +1509,8 @@ def validate_plan(features: Iterable[Any], contracts: Optional[Mapping[str, Any]
                 type(contract.oracle.expected) not in {int, float} or type(contract.oracle.tolerance) not in {int, float}
             ):
                 errors.append(plan.key + ": within_tolerance requires numeric expected and tolerance")
+            if contract.oracle.relation == "equals" and contract.pre_activation_value is MISSING:
+                errors.append(plan.key + ": equals oracle requires a neutral preActivationValue")
         if contract.storage_key not in contract.restore_scope:
             errors.append(plan.key + ": primary storage key is outside restoreScope")
         for dependency in contract.dependency_keys + contract.side_effect_keys:

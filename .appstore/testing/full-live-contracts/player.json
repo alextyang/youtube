@@ -69,7 +69,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const baseline=ctx.storageBaseline?.player_quality_playlist;if(!p||!baseline||typeof ImprovedTube!=='object')return {ok:false,verified:false,feature:\"player_quality_playlist\",reason:'restored fixture/baseline unavailable'};const present=Object.prototype.hasOwnProperty.call(ImprovedTube.storage,'player_quality_playlist');const value=ImprovedTube.storage.player_quality_playlist;const restored=present===baseline.present&&(!present||JSON.stringify(value)===JSON.stringify(baseline.value));return {ok:restored,verified:restored,feature:\"player_quality_playlist\",effect:'page-storage-mirror',observed:{present,value},expected:baseline};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": "auto"
     },
     "prevent_shorts_autoloop": {
       "featureId": "IT-B7AAD085",
@@ -138,7 +139,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"prevent_shorts_autoloop\",reason:'restored fixture/baseline unavailable'};const observed=await (async()=>{const value=(!!document.querySelector('ytd-reel-video-renderer[is-active] video')?.loop);return {loop:value};})();const expected=ctx.before;const restored=JSON.stringify(observed)===JSON.stringify(expected);return {ok:restored,verified:restored,feature:\"prevent_shorts_autoloop\",effect:'semanticBefore',observed,expected};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "shorts_auto_scroll": {
       "featureId": "IT-28263E19",
@@ -222,7 +224,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"shorts_auto_scroll\",reason:'restored fixture/baseline unavailable'};const owned={dialog:!!document.querySelector('#it-contract-continue-dialog'),second:!!document.querySelector('#it-contract-second-player'),smart:!!document.querySelector('#it-smart-speed-indicator'),clipboard:!!window.__itClipboardProbe,download:!!window.__itDownloads,popup:!!window.__itPopup};const restored=!Object.values(owned).some(Boolean);return {ok:restored,verified:restored,feature:\"shorts_auto_scroll\",effect:'ownedArtifact',owned};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "add_category_dropdown": {
       "storageKey": "add_category_dropdown",
@@ -295,7 +298,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"ambient_lighting\",reason:'restored fixture/baseline unavailable'};const observed=await (async()=>{const value=((()=>{const n=document.querySelector('#cinematics,.ytp-cinematic-container'),s=n&&getComputedStyle(n);return !!n&&s.display!=='none'&&s.visibility!=='hidden';})());return {visible:value};})();const expected=ctx.before;const restored=JSON.stringify(observed)===JSON.stringify(expected);return {ok:restored,verified:restored,feature:\"ambient_lighting\",effect:'semanticBefore',observed,expected};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": true
     },
     "auto_generate": {
       "featureId": "IT-65A64D4A",
@@ -359,7 +363,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"auto_generate\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"auto_generate\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "block_av1": {
       "featureId": "IT-59B6BC1C",
@@ -441,7 +446,8 @@
         "localStorageKeys": [
           "it-codec"
         ]
-      }
+      },
+      "preActivationValue": false
     },
     "block_h264": {
       "featureId": "IT-D39B61D3",
@@ -523,7 +529,8 @@
         "localStorageKeys": [
           "it-codec"
         ]
-      }
+      },
+      "preActivationValue": false
     },
     "block_vp9": {
       "featureId": "IT-652A9435",
@@ -605,7 +612,8 @@
         "localStorageKeys": [
           "it-codec"
         ]
-      }
+      },
+      "preActivationValue": false
     },
     "copy_transcript": {
       "featureId": "IT-7B4CD586",
@@ -1031,7 +1039,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"disable_auto_dubbing\",reason:'restored fixture/baseline unavailable'};const track=p.getAudioTrack?.(),info=ImprovedTube.getAudioTrackInfo?.(track)||{},observed={id:track?.id||track?.audioTrackId||null,languageCode:track?.languageCode||info.languageCode||null};const hidden=document.querySelectorAll('[data-it-auto-dubbed-hidden=true]').length;const restored=observed.id===baseline.audio.id&&observed.languageCode===baseline.audio.languageCode&&hidden===0;return {ok:restored,verified:restored,feature:\"disable_auto_dubbing\",effect:'audio',observed,expected:baseline.audio,hidden};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "embed_subtitle": {
       "featureId": "IT-17815CE3",
@@ -1110,7 +1119,8 @@
       "dependencyValues": {
         "player_screenshot_save_as": "file"
       },
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "forced_play_video_from_the_beginning": {
       "featureId": "IT-53B6D4F2",
@@ -1263,7 +1273,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const baseline=ctx.setup?.baseline;if(!p||!baseline)return {ok:false,verified:false,feature:'full_screen_quality',reason:'restored fullscreen fixture/baseline unavailable'};const fullscreen=!!(document.fullscreenElement||document.webkitFullscreenElement||p.classList.contains('ytp-fullscreen'));const quality=p.getPlaybackQuality?.()||null;const restored=!fullscreen&&(!baseline.quality||quality===baseline.quality);return {ok:restored,verified:restored,feature:'full_screen_quality',effect:'fullscreenQuality',fullscreen,quality,expectedQuality:baseline.quality};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": "auto"
     },
     "fullscreen_return_button": {
       "featureId": "IT-71FD05C6",
@@ -1337,7 +1348,8 @@
       },
       "dependencyValues": {},
       "sideEffectState": {},
-      "viewportWidth": 1280
+      "viewportWidth": 1280,
+      "preActivationValue": false
     },
     "hide_auto_dubbed_options": {
       "featureId": "IT-E89EF0F7",
@@ -1421,7 +1433,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"hide_auto_dubbed_options\",reason:'restored fixture/baseline unavailable'};const track=p.getAudioTrack?.(),info=ImprovedTube.getAudioTrackInfo?.(track)||{},observed={id:track?.id||track?.audioTrackId||null,languageCode:track?.languageCode||info.languageCode||null};const hidden=document.querySelectorAll('[data-it-auto-dubbed-hidden=true]').length;const restored=observed.id===baseline.audio.id&&observed.languageCode===baseline.audio.languageCode&&hidden===0;return {ok:restored,verified:restored,feature:\"hide_auto_dubbed_options\",effect:'audio',observed,expected:baseline.audio,hidden};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "max_slider": {
       "storageKey": "max_slider",
@@ -1750,7 +1763,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"mini_player\",reason:'restored fixture/baseline unavailable'};const observed=await (async()=>{const value=(document.querySelector('#movie_player')?.classList.contains('it-mini-player')||false);return {present:value};})();const expected=ctx.before;const restored=JSON.stringify(observed)===JSON.stringify(expected);return {ok:restored,verified:restored,feature:\"mini_player\",effect:'semanticBefore',observed,expected};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "only_one_player_instance_playing": {
       "featureId": "IT-EC8C07CF",
@@ -1824,7 +1838,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const v=document.querySelector('#movie_player video,#player video');const cleanup=ctx.activation?.multiWindowCleanup;const restored=!!v&&cleanup?.verified===true&&Array.isArray(cleanup.remainingHandles)&&!cleanup.remainingHandles.includes(ctx.activation?.multiWindow?.secondHandle);return {ok:restored,verified:restored,feature:'only_one_player_instance_playing',effect:'ownedSecondWindowClosed',cleanup:cleanup||null,realPlayerPresent:!!v};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "pauseWhileIUnplugTheCharger": {
       "storageKey": "pauseWhileIUnplugTheCharger",
@@ -1903,7 +1918,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"pause_while_typing_on_youtube\",reason:'restored fixture/baseline unavailable'};const observed=await (async()=>{const value=(document.querySelector('#movie_player video,#player video')?.paused);return {paused:value};})();const expected=ctx.before;const restored=JSON.stringify(observed)===JSON.stringify(expected);return {ok:restored,verified:restored,feature:\"pause_while_typing_on_youtube\",effect:'semanticBefore',observed,expected};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_60fps": {
       "featureId": "IT-B199B7D2",
@@ -1980,7 +1996,8 @@
         "localStorageKeys": [
           "it-player30fps"
         ]
-      }
+      },
+      "preActivationValue": true
     },
     "player_SDR": {
       "featureId": "IT-CA50A99F",
@@ -2054,7 +2071,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_SDR\",reason:'restored fixture/baseline unavailable'};const supported=MediaSource.isTypeSupported(\"video/webm; codecs=\\\"vp09.02.10.10\\\"\");const restored=supported===baseline.codecSupported;return {ok:restored,verified:restored,feature:\"player_SDR\",effect:'codec',supported,expected:baseline.codecSupported};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_always_repeat": {
       "featureId": "IT-8CC9C28F",
@@ -2133,7 +2151,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_always_repeat\",reason:'restored fixture/baseline unavailable'};const observed=await (async()=>{const value=(document.querySelector('#movie_player video,#player video')?.loop||false);return {loop:value};})();const expected=ctx.before;const restored=JSON.stringify(observed)===JSON.stringify(expected);return {ok:restored,verified:restored,feature:\"player_always_repeat\",effect:'semanticBefore',observed,expected};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_autoPip": {
       "featureId": "IT-B1475158",
@@ -2226,7 +2245,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_autoPip\",reason:'restored fixture/baseline unavailable'};const active=document.pictureInPictureElement===v;const restored=!active;return {ok:restored,verified:restored,feature:\"player_autoPip\",effect:'pictureInPicture',active,expected:false};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_autoPip_outside": {
       "featureId": "IT-A3D5CAC4",
@@ -2332,7 +2352,8 @@
       "dependencyValues": {
         "player_autoPip": true
       },
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_auto_cinema_mode": {
       "featureId": "IT-2BA234F2",
@@ -2406,7 +2427,8 @@
       "dependencyValues": {
         "player_cinema_mode_button": true
       },
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_auto_continue_watching": {
       "featureId": "IT-8C4BF140",
@@ -2485,7 +2507,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_auto_continue_watching\",reason:'restored fixture/baseline unavailable'};const owned={dialog:!!document.querySelector('#it-contract-continue-dialog'),second:!!document.querySelector('#it-contract-second-player'),smart:!!document.querySelector('#it-smart-speed-indicator'),clipboard:!!window.__itClipboardProbe,download:!!window.__itDownloads,popup:!!window.__itPopup};const restored=!Object.values(owned).some(Boolean);return {ok:restored,verified:restored,feature:\"player_auto_continue_watching\",effect:'ownedArtifact',owned};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_auto_hide_cinema_mode_when_paused": {
       "featureId": "IT-2B77A5E9",
@@ -2562,7 +2585,8 @@
         "player_cinema_mode_button": true,
         "player_auto_cinema_mode": true
       },
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_autofullscreen": {
       "featureId": "IT-21464CFA",
@@ -2655,7 +2679,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const baseline=ctx.setup?.baseline;if(!p||!baseline)return {ok:false,verified:false,feature:\"player_autofullscreen\",reason:'restored fullscreen fixture/baseline unavailable'};const fullscreen=!!(document.fullscreenElement||document.webkitFullscreenElement||p.classList.contains('ytp-fullscreen'));const button=!!document.querySelector('#it-youtube-return-button');const restored=!fullscreen&&button===!!baseline.returnButtonPresent;return {ok:restored,verified:restored,feature:\"player_autofullscreen\",effect:'fullscreen',fullscreen,button,expectedButton:!!baseline.returnButtonPresent};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_autopause_when_switching_tabs": {
       "featureId": "IT-E35C0D59",
@@ -2729,7 +2754,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_autopause_when_switching_tabs\",reason:'restored fixture/baseline unavailable'};const observed=await (async()=>{const value=(document.querySelector('#movie_player video,#player video')?.paused);return {paused:value};})();const expected=ctx.before;const restored=JSON.stringify(observed)===JSON.stringify(expected);return {ok:restored,verified:restored,feature:\"player_autopause_when_switching_tabs\",effect:'semanticBefore',observed,expected};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_autoplay_disable": {
       "featureId": "IT-D297DADD",
@@ -2833,7 +2859,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_autoplay_disable\",reason:'restored fixture/baseline unavailable'};const observed=await (async()=>{const value=(document.querySelector('#movie_player video,#player video')?.paused);return {paused:value};})();const expected=ctx.before;const restored=JSON.stringify(observed)===JSON.stringify(expected);return {ok:restored,verified:restored,feature:\"player_autoplay_disable\",effect:'semanticBefore',observed,expected};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_cinema_mode_button": {
       "featureId": "IT-554AE000",
@@ -2917,7 +2944,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_cinema_mode_button\",reason:'restored fixture/baseline unavailable'};const observed=await (async()=>{const value=((()=>{const n=document.querySelector('#overlay_cinema');return !!n&&getComputedStyle(n).display!=='none';})());return {visible:value};})();const expected=ctx.before;const restored=JSON.stringify(observed)===JSON.stringify(expected);return {ok:restored,verified:restored,feature:\"player_cinema_mode_button\",effect:'semanticBefore',observed,expected};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_crop_chapter_titles": {
       "featureId": "IT-4904D7F2",
@@ -2980,7 +3008,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_crop_chapter_titles\",reason:'restored fixture/baseline unavailable'};const observed=document.querySelector('.ytp-chapter-title')?.getBoundingClientRect().width??null;const restored=observed!==null&&Math.abs(observed-baseline.chapterWidth)<1;return {ok:restored,verified:restored,feature:\"player_crop_chapter_titles\",effect:'chapterWidth',observed,expected:baseline.chapterWidth};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": true
     },
     "player_default_dubbed_language": {
       "featureId": "IT-6A1B8183",
@@ -3064,7 +3093,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_default_dubbed_language\",reason:'restored fixture/baseline unavailable'};const track=p.getAudioTrack?.(),info=ImprovedTube.getAudioTrackInfo?.(track)||{},observed={id:track?.id||track?.audioTrackId||null,languageCode:track?.languageCode||info.languageCode||null};const hidden=document.querySelectorAll('[data-it-auto-dubbed-hidden=true]').length;const restored=observed.id===baseline.audio.id&&observed.languageCode===baseline.audio.languageCode&&hidden===0;return {ok:restored,verified:restored,feature:\"player_default_dubbed_language\",effect:'audio',observed,expected:baseline.audio,hidden};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": "disabled"
     },
     "player_dont_speed_education": {
       "featureId": "IT-EB014FFF",
@@ -3262,7 +3292,8 @@
       },
       "dependencyValues": {},
       "sideEffectState": {},
-      "viewportWidth": 1280
+      "viewportWidth": 1280,
+      "preActivationValue": false
     },
     "player_force_speed_on_music": {
       "featureId": "IT-AD8D7EBD",
@@ -3581,7 +3612,8 @@
         "localStorageKeys": [
           "it-codec"
         ]
-      }
+      },
+      "preActivationValue": false
     },
     "player_hamburger_button": {
       "featureId": "IT-9911C195",
@@ -3671,7 +3703,8 @@
       },
       "dependencyValues": {},
       "sideEffectState": {},
-      "viewportWidth": 1280
+      "viewportWidth": 1280,
+      "preActivationValue": false
     },
     "player_increase_decrease_speed_buttons": {
       "featureId": "IT-D54F58B2",
@@ -4378,7 +4411,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const baseline=ctx.storageBaseline?.player_quality;if(!p||!baseline||typeof ImprovedTube!=='object')return {ok:false,verified:false,feature:\"player_quality\",reason:'restored fixture/baseline unavailable'};const present=Object.prototype.hasOwnProperty.call(ImprovedTube.storage,'player_quality');const value=ImprovedTube.storage.player_quality;const restored=present===baseline.present&&(!present||JSON.stringify(value)===JSON.stringify(baseline.value));return {ok:restored,verified:restored,feature:\"player_quality\",effect:'page-storage-mirror',observed:{present,value},expected:baseline};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": "auto"
     },
     "player_quality_without_focus": {
       "featureId": "IT-852A42C5",
@@ -4452,7 +4486,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const baseline=ctx.storageBaseline?.player_quality_without_focus;if(!p||!baseline||typeof ImprovedTube!=='object')return {ok:false,verified:false,feature:\"player_quality_without_focus\",reason:'restored fixture/baseline unavailable'};const present=Object.prototype.hasOwnProperty.call(ImprovedTube.storage,'player_quality_without_focus');const value=ImprovedTube.storage.player_quality_without_focus;const restored=present===baseline.present&&(!present||JSON.stringify(value)===JSON.stringify(baseline.value));return {ok:restored,verified:restored,feature:\"player_quality_without_focus\",effect:'page-storage-mirror',observed:{present,value},expected:baseline};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": "auto"
     },
     "player_repeat_button": {
       "featureId": "IT-10F0E741",
@@ -4546,7 +4581,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_repeat_button\",reason:'restored fixture/baseline unavailable'};const observed=await (async()=>{const value=(document.querySelector('#movie_player video,#player video')?.loop||false);return {loop:value};})();const expected=ctx.before;const restored=JSON.stringify(observed)===JSON.stringify(expected);return {ok:restored,verified:restored,feature:\"player_repeat_button\",effect:'semanticBefore',observed,expected};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_revert_theater_button_sizes": {
       "featureId": "IT-753F0289",
@@ -4791,7 +4827,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_rotate_button\",reason:'restored fixture/baseline unavailable'};const observed=await (async()=>{const value=(getComputedStyle(document.querySelector('#movie_player video,#player video')).transform!=='none');return {rotated:value};})();const expected=ctx.before;const restored=JSON.stringify(observed)===JSON.stringify(expected);return {ok:restored,verified:restored,feature:\"player_rotate_button\",effect:'semanticBefore',observed,expected};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "player_screenshot_button": {
       "featureId": "IT-ED0A8FE0",
@@ -4964,7 +5001,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_screenshot_save_as\",reason:'restored fixture/baseline unavailable'};const owned={dialog:!!document.querySelector('#it-contract-continue-dialog'),second:!!document.querySelector('#it-contract-second-player'),smart:!!document.querySelector('#it-smart-speed-indicator'),clipboard:!!window.__itClipboardProbe,download:!!window.__itDownloads,popup:!!window.__itPopup};const restored=!Object.values(owned).some(Boolean);return {ok:restored,verified:restored,feature:\"player_screenshot_save_as\",effect:'ownedArtifact',owned};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": "clipboard"
     },
     "player_subtitles": {
       "featureId": "IT-9FF0AEBA",
@@ -5048,7 +5086,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"player_subtitles\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"player_subtitles\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": "disabled"
     },
     "player_volume": {
       "featureId": "IT-25F4A797",
@@ -5422,7 +5461,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"return_youtube_dislike\",reason:'restored fixture/baseline unavailable'};const owned={dialog:!!document.querySelector('#it-contract-continue-dialog'),second:!!document.querySelector('#it-contract-second-player'),smart:!!document.querySelector('#it-smart-speed-indicator'),clipboard:!!window.__itClipboardProbe,download:!!window.__itDownloads,popup:!!window.__itPopup};const restored=!Object.values(owned).some(Boolean);return {ok:restored,verified:restored,feature:\"return_youtube_dislike\",effect:'ownedArtifact',owned};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "sens_slider": {
       "storageKey": "sens_slider",
@@ -5573,7 +5613,8 @@
         "smart_speed_profiles": {},
         "player_custom_playback_speed": 1
       },
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "smart_speed_indicator": {
       "featureId": "IT-C438C1D9",
@@ -5667,7 +5708,8 @@
         "smart_speed_profiles": {},
         "player_custom_playback_speed": 1
       },
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "smart_speed_max": {
       "featureId": "IT-8466FC8A",
@@ -5997,7 +6039,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"subtitles_background_color\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"subtitles_background_color\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": "#fff"
     },
     "subtitles_background_opacity": {
       "featureId": "IT-C36775C5",
@@ -6066,7 +6109,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"subtitles_background_opacity\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"subtitles_background_opacity\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": 75
     },
     "subtitles_character_edge_style": {
       "featureId": "IT-564E8547",
@@ -6135,7 +6179,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"subtitles_character_edge_style\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"subtitles_character_edge_style\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": 0
     },
     "subtitles_disable_lyrics": {
       "featureId": "IT-1C266C0F",
@@ -6209,7 +6254,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"subtitles_disable_lyrics\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"subtitles_disable_lyrics\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": false
     },
     "subtitles_font_color": {
       "featureId": "IT-87FF6FD1",
@@ -6278,7 +6324,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"subtitles_font_color\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"subtitles_font_color\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": "#fff"
     },
     "subtitles_font_family": {
       "featureId": "IT-24712D47",
@@ -6347,7 +6394,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"subtitles_font_family\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"subtitles_font_family\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": 4
     },
     "subtitles_font_opacity": {
       "featureId": "IT-296D8FFE",
@@ -6416,7 +6464,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"subtitles_font_opacity\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"subtitles_font_opacity\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": 100
     },
     "subtitles_font_size": {
       "featureId": "IT-30F0BB9C",
@@ -6485,7 +6534,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"subtitles_font_size\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"subtitles_font_size\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": 0
     },
     "subtitles_language": {
       "featureId": "IT-AACE18A4",
@@ -6559,7 +6609,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"subtitles_language\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"subtitles_language\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": "default"
     },
     "subtitles_window_color": {
       "featureId": "IT-4A099526",
@@ -6628,7 +6679,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"subtitles_window_color\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"subtitles_window_color\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": "#fff"
     },
     "subtitles_window_opacity": {
       "featureId": "IT-373CC7DF",
@@ -6697,7 +6749,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"subtitles_window_opacity\",reason:'restored fixture/baseline unavailable'};const settings=p.getSubtitlesUserSettings?.()||null;const subtitlesOn=!!p.isSubtitlesOn?.();const restored=JSON.stringify(settings)===JSON.stringify(baseline.captionSettings)&&subtitlesOn===baseline.subtitlesOn;return {ok:restored,verified:restored,feature:\"subtitles_window_opacity\",effect:'captions',settings,subtitlesOn,expected:{settings:baseline.captionSettings,subtitlesOn:baseline.subtitlesOn}};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": 0
     },
     "up_next_autoplay": {
       "featureId": "IT-B4C69475",
@@ -6771,7 +6824,8 @@
         "script": "const ctx=arguments[arguments.length-1]||{};const p=document.querySelector('#movie_player')||window.movie_player;const v=p?.querySelector('video')||document.querySelector('#player video');const baseline=ctx.setup?.baseline;if(!p||!v||!baseline)return {ok:false,verified:false,feature:\"up_next_autoplay\",reason:'restored fixture/baseline unavailable'};const observed=await (async()=>{const value=(document.querySelector('.ytp-autonav-toggle-button')?.getAttribute('aria-checked'));return {checked:value};})();const expected=ctx.before;const restored=JSON.stringify(observed)===JSON.stringify(expected);return {ok:restored,verified:restored,feature:\"up_next_autoplay\",effect:'semanticBefore',observed,expected};"
       },
       "dependencyValues": {},
-      "sideEffectState": {}
+      "sideEffectState": {},
+      "preActivationValue": true
     },
     "whenBatteryIslowDecreaseQuality": {
       "storageKey": "whenBatteryIslowDecreaseQuality",

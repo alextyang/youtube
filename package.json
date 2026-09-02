@@ -7,8 +7,10 @@
     "test": "jest tests",
     "start": "echo 'This is a browser extension. Please see walkthrough.md for loading instructions.'",
     "lint": "eslint --ignore-path tests/.gitignore",
-    "test:safari:e2e:index": "python3 scripts/appstore/safari_e2e.py --index-only",
-    "test:safari:harness": "python3 -m unittest scripts/appstore/test_safari_e2e.py scripts/appstore/test_aqua_window_observer.py -v"
+    "test:safari:e2e:index": "python3 scripts/appstore/safari_e2e.py --full-live --contracts-dir .appstore/testing/full-live-contracts --source repository --index-only --check-index",
+    "generate:safari:e2e:index": "python3 scripts/appstore/safari_e2e.py --full-live --contracts-dir .appstore/testing/full-live-contracts --source repository --index-only --write-index",
+    "test:safari:harness": "python3 -m unittest scripts/appstore/test_safari_e2e.py scripts/appstore/test_aqua_window_observer.py -v",
+    "test:safari:e2e:manual": "bash scripts/appstore/run_safari_e2e_manual.sh"
   },
   "keywords": [],
   "author": "",

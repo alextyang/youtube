@@ -28,6 +28,7 @@ EXTENSION_RELATIVE=Path("Contents/PlugIns/ImprovedTube Extension.appex")
 INSTALLED=APP_PATH/EXTENSION_RELATIVE/"Contents/Resources"
 RESULTS_ROOT=ROOT/".appstore/testing/e2e-results"
 INDEX_PATH=ROOT/".appstore/testing/safari-e2e-assertions.md"
+CONTRACTS_DIR=ROOT/".appstore/testing/full-live-contracts"
 EXPECTED_APP_BUNDLE_ID="com.tiendoxuan.improvedtube"
 EXPECTED_EXTENSION_BUNDLE_ID="com.tiendoxuan.improvedtube.Extension"
 EXPECTED_TESTFLIGHT_AUTHORITY="TestFlight Beta Distribution"
@@ -44,12 +45,10 @@ EVIDENCE_CLASSES={"identity","discovery","transport","live-semantic","source-onl
 OBSERVER_CAPABILITY_ENV="IMPROVEDTUBE_AQUA_OBSERVER_CAPABILITY"
 OBSERVER_BRIDGE_PROTOCOL="improvedtube-aqua-bridge-v1"
 CANDIDATE_SURFACE_PATHS=(
-    Path(".gitignore"),
-    Path("package.json"),
-    Path(".appstore/testing/safari-e2e-assertions.md"),
     Path("scripts/appstore/aqua_window_observer.py"),
     Path("scripts/appstore/full_live_framework.py"),
     Path("scripts/appstore/launch_aqua_observer.py"),
+    Path("scripts/appstore/run_safari_e2e_manual.sh"),
     Path("scripts/appstore/safari_e2e.py"),
     Path("scripts/appstore/test_aqua_window_observer.py"),
     Path("scripts/appstore/test_safari_e2e.py"),
@@ -390,7 +389,8 @@ def render_index(features:list[Feature],source_root:Path,full_live:bool=False,pl
     contract_count=sum(item.status=="contracted" for item in plan_map.values()) if full_live else sum(f.key in CONTRACTS for f in features)
     header="| Feature | Storage key | Control | Route | Source | Classification | Fixture | Oracle | Risk | Metadata digest | Candidate hints |" if full_live else "| Feature | Storage key | Control | Route | Source | Classification | Fixture | Oracle | Risk | Metadata digest |"
     divider="|---|---|---|---|---|---|---|---|---|---|---|" if full_live else "|---|---|---|---|---|---|---|---|---|---|"
-    lines=["# ImprovedTube Safari E2E assertion index","","Generated from "+str(source_root)+".",
+    source_label="installed TestFlight extension" if source_root==INSTALLED else "repository"
+    lines=["# ImprovedTube Safari E2E assertion index","","Generated from "+source_label+".",
     "","Static discovery is source evidence only. A live PASS requires an explicit semantic contract with route, prerequisites, activation, before/after observation, cleanup, and persisted restoration.","",
     f"Controls: **{len(features)}**. Live semantic contracts: **{contract_count}**. Routes: "+", ".join(k+"="+str(v) for k,v in sorted(counts.items()))+".","",
     ("Full-live preflight refuses every uncontracted control; only complete contracts or reviewed NOT_APPLICABLE entries can run." if full_live else "Focused mode retains the legacy source inventory."),"",
@@ -421,7 +421,7 @@ def render_index(features:list[Feature],source_root:Path,full_live:bool=False,pl
     "- ISOLATION_FAILURE: exact or persisted restoration failed; later features stop.",
     "- HARNESS/ENVIRONMENT: driver, browser, display, website, or cleanup failures.",
     "Global coverage means every indexed assertion row has a status. Screenshots are artifacts only and never feature proof.",
-    "Operator path: run launch_aqua_observer.py as the active Aqua user on a one-run /tmp Unix socket; pass only the protected capability through IMPROVEDTUBE_AQUA_OBSERVER_CAPABILITY when invoking --driver-mode external.",""]
+    "Operator path: run scripts/appstore/run_safari_e2e_manual.sh as the active Aqua user.",""]
     return "\n".join(lines)
 
 def deep_equal(a:Any,b:Any)->bool:
@@ -456,6 +456,8 @@ def classify_observation(c:FeatureContract,before:Any,after:Any,activation:Any)-
 
 def candidate_surface_identity(root:Path=ROOT)->dict[str,Any]:
     paths=[root/relative for relative in CANDIDATE_SURFACE_PATHS]
+    contracts=root/Path(".appstore/testing/full-live-contracts")
+    if contracts.is_dir():paths.extend(sorted(contracts.glob("*.json")))
     if any(not p.is_file() for p in paths):
         missing=[str(p.relative_to(root)) for p in paths if not p.is_file()]
         raise RuntimeError("candidate surface path missing: "+", ".join(missing))
@@ -465,12 +467,11 @@ def candidate_surface_identity(root:Path=ROOT)->dict[str,Any]:
     return {"sha256":d.hexdigest(),"paths":inventory}
 
 def freeze_candidate_surface(index_text:str,root:Path=ROOT)->dict[str,Any]:
-    """Materialize the generated index before hashing the immutable candidate surface."""
-    target=root/Path(".appstore/testing/safari-e2e-assertions.md")
-    target.parent.mkdir(parents=True,exist_ok=True);target.write_text(index_text)
-    if target.read_text()!=index_text:raise RuntimeError("generated assertion index readback mismatch")
+    """Hash the immutable test plan without modifying the checkout."""
     candidate=candidate_surface_identity(root)
-    candidate["generatedIndexSHA256"]=hashlib.sha256(index_text.encode()).hexdigest()
+    index_digest=hashlib.sha256(index_text.encode()).hexdigest()
+    candidate["sha256"]=hashlib.sha256((candidate["sha256"]+"\0"+index_digest).encode()).hexdigest()
+    candidate["generatedIndexSHA256"]=index_digest
     candidate["generatedIndexBytes"]=len(index_text.encode())
     return candidate
 
@@ -529,6 +530,23 @@ def inspect_signed_bundle(app_path:Path=APP_PATH)->dict[str,Any]:
     except (OSError,ValueError,subprocess.SubprocessError,plistlib.InvalidFileException) as exc:e["errors"].append(str(exc))
     return e
 validate_signed_bundle=inspect_signed_bundle
+
+def bind_expected_signed_candidate(identity:dict[str,Any],version:str|None,build:str|None,asset_sha256:str|None=None)->dict[str,Any]:
+    if not isinstance(version,str) or not re.fullmatch(r"[0-9]+\.[0-9]+\.[0-9]+",version):raise ValueError("--expected-version must be a three-part version")
+    if not isinstance(build,str) or not re.fullmatch(r"[1-9][0-9]*",build):raise ValueError("--expected-build must be a positive integer")
+    if asset_sha256 is not None and not re.fullmatch(r"[0-9a-f]{64}",asset_sha256):raise ValueError("--expected-extension-asset-sha256 must be 64 lowercase hex characters")
+    app=identity.get("appPlist") if isinstance(identity,dict) else None;extension=identity.get("extensionPlist") if isinstance(identity,dict) else None
+    observed_asset=identity.get("extensionAssetSHA256") if isinstance(identity,dict) else None
+    exact=(identity.get("valid") is True and isinstance(app,dict) and isinstance(extension,dict)
+           and app.get("version")==version and extension.get("version")==version
+           and str(app.get("build"))==build and str(extension.get("build"))==build
+           and (asset_sha256 is None or observed_asset==asset_sha256))
+    binding={"expected":{"version":version,"build":build,"extensionAssetSHA256":asset_sha256},
+             "observed":{"appVersion":app.get("version") if isinstance(app,dict) else None,"appBuild":app.get("build") if isinstance(app,dict) else None,
+                         "extensionVersion":extension.get("version") if isinstance(extension,dict) else None,"extensionBuild":extension.get("build") if isinstance(extension,dict) else None,
+                         "extensionAssetSHA256":observed_asset},"exact":exact}
+    if not exact:raise ValueError("installed TestFlight build does not match the explicitly expected candidate")
+    result=dict(identity);result["candidateBinding"]=binding;result["candidateMatch"]=True;return result
 
 class WebDriver:
     def __init__(self,host:str,port:int):self.host,self.port,self.session_id=host,port,"";self.capabilities={};self.browser_pid=None;self.in_frame=False
@@ -942,6 +960,7 @@ def release_gate(sut:str,identity:dict[str,Any],missing:Iterable[str],results:It
                  observer_mode:str="late",full_live:bool=False)->bool:
     allowed={PASS,NOT_APPLICABLE} if full_live else {PASS}
     return (sut=="signed" and not list(missing) and type(identity) is dict and identity.get("valid") is True
+            and identity.get("candidateMatch") is True
             and observer_mode=="late"
             and type(provider) is dict and provider.get("bound") is True and provider.get("browserAuthoritative") is True
             and all(getattr(result,"status",None) in allowed for result in results))
@@ -2305,7 +2324,7 @@ def run(args:argparse.Namespace,features:list[Feature],source_root:Path,identity
     print(json.dumps({"output":str(output),**metadata},indent=2,default=str),flush=True);return 0 if metadata["releaseGate"] else 1
 
 def main(argv:list[str]|None=None)->int:
-    p=argparse.ArgumentParser();p.add_argument("--host",default="127.0.0.1");p.add_argument("--port",type=int,default=4444);p.add_argument("--app-path",default=str(APP_PATH));p.add_argument("--extension-path",default=str(INSTALLED));p.add_argument("--window-x",type=int,default=-2420);p.add_argument("--window-y",type=int,default=-2520);p.add_argument("--window-width",type=int,default=1360);p.add_argument("--window-height",type=int,default=2480);p.add_argument("--limit",type=int);p.add_argument("--feature",action="append",dest="feature_keys");p.add_argument("--exercise-falsy",action="store_true");p.add_argument("--continue-after-product-failure",action="store_true",help="continue unrelated contracts only after a product failure with exact restoration and containment proof; isolation or harness failures stop");p.add_argument("--index-only",action="store_true");p.add_argument("--source",choices=("installed","repository"),default="installed");p.add_argument("--sut",choices=("signed","unpacked"),default="signed");p.add_argument("--unpacked",action="store_true");p.add_argument("--driver-mode",choices=("internal","external"),default="internal");p.add_argument("--external-driver",action="store_true");p.add_argument("--stp-pid",type=int,help="optional prebound PID for non-release diagnostics; omit for late binding");p.add_argument("--window-id",type=int,help="optional prebound window ID for non-release diagnostics; omit for late binding");p.add_argument("--observer-socket");p.add_argument("--observer-run-id");p.add_argument("--observer-capability",default="");p.add_argument("--observer-capability-file");p.add_argument("--observer-server-uid",type=int)
+    p=argparse.ArgumentParser();p.add_argument("--host",default="127.0.0.1");p.add_argument("--port",type=int,default=4444);p.add_argument("--app-path",default=str(APP_PATH));p.add_argument("--extension-path",default=str(INSTALLED));p.add_argument("--window-x",type=int,default=-1408);p.add_argument("--window-y",type=int,default=-900);p.add_argument("--window-width",type=int,default=1360);p.add_argument("--window-height",type=int,default=2480);p.add_argument("--limit",type=int);p.add_argument("--feature",action="append",dest="feature_keys");p.add_argument("--exercise-falsy",action="store_true");p.add_argument("--continue-after-product-failure",action="store_true",help="continue unrelated contracts only after a product failure with exact restoration and containment proof; isolation or harness failures stop");p.add_argument("--index-only",action="store_true");index=p.add_mutually_exclusive_group();index.add_argument("--check-index",action="store_true");index.add_argument("--write-index",action="store_true");p.add_argument("--source",choices=("installed","repository"),default="installed");p.add_argument("--sut",choices=("signed","unpacked"),default="signed");p.add_argument("--unpacked",action="store_true");p.add_argument("--expected-version");p.add_argument("--expected-build");p.add_argument("--expected-extension-asset-sha256");p.add_argument("--driver-mode",choices=("internal","external"),default="internal");p.add_argument("--external-driver",action="store_true");p.add_argument("--stp-pid",type=int,help="optional prebound PID for non-release diagnostics; omit for late binding");p.add_argument("--window-id",type=int,help="optional prebound window ID for non-release diagnostics; omit for late binding");p.add_argument("--observer-socket");p.add_argument("--observer-run-id");p.add_argument("--observer-capability",default="");p.add_argument("--observer-capability-file");p.add_argument("--observer-server-uid",type=int)
     p.add_argument("--falsy-only",action="store_true")
     p.add_argument("--full-live",action="store_true",help="plan and gate every discovered control; refuses incomplete coverage before Safari starts")
     p.add_argument("--allow-permission",action="store_true",help="allow explicitly permission-risk full-live contracts")
@@ -2318,6 +2337,7 @@ def main(argv:list[str]|None=None)->int:
     try:a.account_fixture_data=load_account_fixture(a.account_fixture) if a.account_fixture else None
     except (OSError,ValueError,json.JSONDecodeError) as exc:raise SystemExit("invalid account fixture: "+str(exc))
     if a.full_live and (a.limit is not None or a.feature_keys):raise SystemExit("--full-live requires the complete discovered plan; --limit/--feature are focused-mode options")
+    if (a.check_index or a.write_index) and not a.index_only:raise SystemExit("--check-index/--write-index require --index-only")
     if a.falsy_only:
         if not a.exercise_falsy:raise SystemExit("--falsy-only requires --exercise-falsy")
         if len(a.feature_keys or [])!=1:raise SystemExit("--falsy-only requires exactly one explicit --feature")
@@ -2344,9 +2364,6 @@ def main(argv:list[str]|None=None)->int:
     candidate_identity=freeze_candidate_surface(assertion_index_text,ROOT)
     if a.sut=="unpacked" and a.extension_path==str(INSTALLED):a.extension_path=str(ROOT)
     if not a.index_only and a.driver_mode=="external" and (not a.observer_socket or not a.observer_run_id or not (a.observer_capability or os.environ.get(OBSERVER_CAPABILITY_ENV,""))):raise SystemExit("external driver mode requires one-run observer socket/run/capability")
-    identity=inspect_signed_bundle(Path(a.app_path))
-    if a.sut=="signed" and not identity.get("valid"):
-        print(json.dumps({"signedIdentity":identity,"candidate":candidate_identity},indent=2),file=sys.stderr);raise SystemExit("signed TestFlight bundle unavailable or invalid")
     if a.feature_keys:
         known={f.key for f in features};unknown=sorted(set(a.feature_keys)-known)
         if unknown:raise SystemExit("unknown feature key(s): "+", ".join(unknown))
@@ -2356,17 +2373,25 @@ def main(argv:list[str]|None=None)->int:
     a.assertion_index_text=assertion_index_text if a.full_live else None
     a.candidate_identity=candidate_identity
     if a.index_only:
+        if a.check_index and (not INDEX_PATH.is_file() or INDEX_PATH.read_text()!=assertion_index_text):raise SystemExit("tracked Safari assertion index is stale; run the same command with --write-index")
+        if a.write_index:INDEX_PATH.write_text(assertion_index_text)
         if a.full_live:
             preflight=framework_preflight(features,_full_contracts(loaded_contracts))
             summary={"controls":len(features),"fullLive":True,
                      "contracted":sorted(item.key for item in preflight.plans if item.status=="contracted"),
                      "notApplicable":sorted(item.key for item in preflight.plans if item.status=="not_applicable"),
-                     "uncontracted":sorted(item.key for item in preflight.plans if item.status=="uncontracted"),
-                     "signedIdentityValid":identity.get("valid"),"candidate":candidate_identity,
+                     "uncontracted":sorted(item.key for item in preflight.plans if item.status=="uncontracted"),"candidate":candidate_identity,
                      "contractCatalog":catalog_diagnostics,"planDigest":preflight.plan_digest,"planCounts":preflight.counts}
         else:
-            summary={"controls":len(features),"liveSemanticContracts":sorted(k for k in CONTRACTS if k in {f.key for f in features}),"sourceOnly":sorted(f.key for f in features if f.key not in CONTRACTS),"signedIdentityValid":identity.get("valid"),"candidate":candidate_identity}
+            summary={"controls":len(features),"liveSemanticContracts":sorted(k for k in CONTRACTS if k in {f.key for f in features}),"sourceOnly":sorted(f.key for f in features if f.key not in CONTRACTS),"candidate":candidate_identity}
         print(json.dumps(summary,indent=2),flush=True);return 0
+    if a.sut=="signed" and source!=INSTALLED:raise SystemExit("signed live runs require --source installed so discovery and execution use the same TestFlight build")
+    identity=inspect_signed_bundle(Path(a.app_path))
+    if a.sut=="signed" and not identity.get("valid"):
+        print(json.dumps({"signedIdentity":identity,"candidate":candidate_identity},indent=2),file=sys.stderr);raise SystemExit("signed TestFlight bundle unavailable or invalid")
+    if a.sut=="signed":
+        try:identity=bind_expected_signed_candidate(identity,a.expected_version,a.expected_build,a.expected_extension_asset_sha256)
+        except ValueError as exc:raise SystemExit(str(exc))
     return run(a,features,source,identity)
 
 if __name__=="__main__":sys.exit(main())

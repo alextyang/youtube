@@ -323,7 +323,8 @@ class HarnessTests(unittest.TestCase):
         self.assertEqual(MODULE.classify_bridge(shaped), MODULE.PASS)
 
     def _signed_identity(self):
-        return {"valid":True,"extensionPlist":{"bundleId":MODULE.EXPECTED_EXTENSION_BUNDLE_ID},
+        return {"valid":True,"candidateMatch":True,"appPlist":{"version":"4.1322.0","build":"1331"},
+                "extensionPlist":{"bundleId":MODULE.EXPECTED_EXTENSION_BUNDLE_ID,"version":"4.1322.0","build":"1331"},
                 "extensionSignature":{"CDHash":"signed-cdhash"},"extensionAssetSHA256":"signed-asset"}
 
     def _bound_bridge(self, identity=None):
@@ -342,6 +343,21 @@ class HarnessTests(unittest.TestCase):
         self.assertFalse(MODULE.release_gate("signed",identity,[],results,declared))
         self.assertFalse(MODULE.release_gate("unpacked",identity,[],results,declared))
         self.assertFalse(MODULE.release_gate("signed",identity,[],results,{"bound":False}))
+
+    def test_release_gate_requires_exact_expected_candidate_binding(self):
+        identity=self._signed_identity();results=[SimpleNamespace(status=MODULE.PASS)];provider={"bound":True,"browserAuthoritative":True}
+        self.assertTrue(MODULE.release_gate("signed",identity,[],results,provider))
+        identity["candidateMatch"]=False
+        self.assertFalse(MODULE.release_gate("signed",identity,[],results,provider))
+
+    def test_expected_candidate_binding_checks_version_build_and_optional_asset(self):
+        identity=self._signed_identity();identity.pop("candidateMatch")
+        bound=MODULE.bind_expected_signed_candidate(identity,"4.1322.0","1331")
+        self.assertTrue(bound["candidateMatch"]);self.assertTrue(bound["candidateBinding"]["exact"])
+        identity["extensionAssetSHA256"]="a"*64
+        self.assertTrue(MODULE.bind_expected_signed_candidate(identity,"4.1322.0","1331","a"*64)["candidateMatch"])
+        with self.assertRaisesRegex(ValueError,"does not match"):
+            MODULE.bind_expected_signed_candidate(identity,"4.1322.0","1332")
 
     def test_provider_mismatch_or_unbound_is_non_release(self):
         identity=self._signed_identity();results=[SimpleNamespace(status=MODULE.PASS)]
@@ -1134,20 +1150,20 @@ class HarnessTests(unittest.TestCase):
         self.assertFalse(failed["ok"]);self.assertFalse(failed["readinessTimedOut"])
         self.assertEqual(ambiguous.calls,1)
 
-    def test_generated_index_is_frozen_before_candidate_digest_and_is_deterministic(self):
+    def test_generated_index_digest_is_pure_and_deterministic(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory)
             for relative in MODULE.CANDIDATE_SURFACE_PATHS:
                 path=root/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_text("fixture "+relative.as_posix())
-            target=root/".appstore/testing/safari-e2e-assertions.md";target.write_text("unknown old bytes")
+            target=root/".appstore/testing/safari-e2e-assertions.md";target.parent.mkdir(parents=True,exist_ok=True);target.write_text("unknown old bytes")
             text="# generated current index\n\nexact baseline\n"
             first=MODULE.freeze_candidate_surface(text,root)
-            self.assertEqual(target.read_text(),text)
-            self.assertEqual(first,MODULE.candidate_surface_identity(root)|{
-                "generatedIndexSHA256":hashlib.sha256(text.encode()).hexdigest(),
-                "generatedIndexBytes":len(text.encode())})
+            base=MODULE.candidate_surface_identity(root);index_digest=hashlib.sha256(text.encode()).hexdigest()
+            expected={**base,"sha256":hashlib.sha256((base["sha256"]+"\0"+index_digest).encode()).hexdigest(),
+                      "generatedIndexSHA256":index_digest,"generatedIndexBytes":len(text.encode())}
+            self.assertEqual(first,expected);self.assertEqual(target.read_text(),"unknown old bytes")
             second=MODULE.freeze_candidate_surface(text,root)
-            self.assertEqual(second,first);self.assertEqual(target.read_text(),text)
+            self.assertEqual(second,first);self.assertEqual(target.read_text(),"unknown old bytes")
 
     def test_window_containment_boundaries_and_target_presence(self):
         original = MODULE.coregraphics_windows
@@ -1694,6 +1710,13 @@ class HarnessTests(unittest.TestCase):
         text = MODULE.render_index([feature], MODULE.ROOT, full_live=True)
         self.assertIn("ImprovedTube.indexFeature", text)
         self.assertNotIn("SOURCE_ONLY", text)
+        self.assertIn("Generated from repository.",text)
+        self.assertNotIn(str(MODULE.ROOT),text)
+
+    def test_equals_oracle_requires_a_causal_baseline(self):
+        spec=MODULE.OracleSpec("selected_state","equals","value","enabled")
+        self.assertFalse(MODULE.dispatch_oracle(spec,{"value":"enabled"},{"value":"enabled"}))
+        self.assertTrue(MODULE.dispatch_oracle(spec,{"value":"disabled"},{"value":"enabled"}))
 
     def test_async_lifecycle_awaits_top_level_await_and_appends_context(self):
         driver=FakeFullLiveDriver();context={"setup":{"ok":True},"before":None,"postActivation":None,"activation":None,"accountFixture":None,"observedAccount":None}
