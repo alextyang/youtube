@@ -263,10 +263,12 @@ class HarnessTests(unittest.TestCase):
                   "extensionManifest":{"name":"Improve YouTube! for YouTube & Videos","version":"4","manifest_version":3,"options_page":"menu/index.html"}}
         driver=FakeFullLiveDriver();rows=[]
         with tempfile.TemporaryDirectory() as directory:
-            outcome=MODULE.run_full_live_contracts(driver,[feature],{"full_fake":plan},identity,rows,Path(directory),SimpleNamespace(allow_permission=False,allow_account=False,allow_destructive=False,account_fixture=None,account_fixture_data=None),lambda _:{"ok":True})
+            plans={"full_fake":plan,"unselected":SimpleNamespace(contract=SimpleNamespace(route="watch",is_not_applicable=False,surface="youtube-page"))}
+            outcome=MODULE.run_full_live_contracts(driver,[feature],plans,identity,rows,Path(directory),SimpleNamespace(allow_permission=False,allow_account=False,allow_destructive=False,account_fixture=None,account_fixture_data=None),lambda _:{"ok":True})
             self.assertEqual([path.name for path in Path(directory).glob("*.png")],["route-search.png"])
             screenshots=next(row.evidence["screenshots"] for row in rows if row.assertion_id=="IT-FULL-FAKE-EFFECT")
             self.assertTrue(all("sha256" in item and "path" not in item for item in screenshots))
+            self.assertFalse(any(row.assertion_id.startswith("ROUTE-WATCH-") for row in rows))
         self.assertFalse(outcome["terminal"])
         self.assertEqual(driver.values,{})
         self.assertEqual(driver.rect,{"x":0,"y":0,"width":1200,"height":900})
@@ -846,6 +848,14 @@ class HarnessTests(unittest.TestCase):
         self.assertIn("shortcut_activate_captions",MODULE.CONTRACTS)
         self.assertEqual({"player_playback_speed","shortcut_activate_captions"}&set(MODULE.CONTRACTS),
                          {"player_playback_speed","shortcut_activate_captions"})
+
+    def test_full_live_accepts_one_feature_but_not_multiple(self):
+        with patch("builtins.print"):
+            self.assertEqual(MODULE.main(["--full-live","--source","repository","--index-only",
+                                          "--contracts-dir",str(MODULE.CONTRACTS_DIR),
+                                          "--feature","channel_compact_theme"]),0)
+        with self.assertRaisesRegex(SystemExit,"at most one --feature"):
+            MODULE.main(["--full-live","--index-only","--feature","one","--feature","two"])
 
     def test_active_aqua_uid_is_console_owner_not_remote_client(self):
         original=MODULE.active_aqua_uid

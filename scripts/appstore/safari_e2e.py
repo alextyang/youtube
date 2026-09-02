@@ -2045,7 +2045,8 @@ def run_full_live_contracts(driver:WebDriver,features:list[Feature],plans:dict[s
                 if not any(row.assertion_id==feature.feature_id+"-STORAGE" for row in results):record(results,feature.feature_id+"-STORAGE",feature.feature_id,"direct storage snapshot and diff",NOT_RUN,"harness",contract.route,"finally",{"reason":cleanup_error})
             record(results,feature.feature_id+"-RESTORATION",feature.feature_id,"exact persisted restoration",PASS if restoration_ok else ISOLATION_FAILURE,"isolation",contract.route,"finally",{"cleanup":cleanup_result,"error":cleanup_error,"restored":restoration_ok,**restoration_evidence})
             if not restoration_ok:terminal=True
-    for route in sorted({plan.contract.route for plan in plans.values() if plan.contract and not plan.contract.is_not_applicable and plan.contract.surface=="youtube-page"}):
+    selected_plans=(plans.get(feature.key) for feature in features)
+    for route in sorted({plan.contract.route for plan in selected_plans if plan and plan.contract and not plan.contract.is_not_applicable and plan.contract.surface=="youtube-page"}):
         visited=route in visited_routes;console=route_console.get(route,[]);attributed=[item for item in console if isinstance(item,dict) and (str(item.get("message","")).startswith("[ImprovedTube]") or "ImprovedTube" in str(item.get("source","")))]
         record(results,"ROUTE-"+route.upper()+"-REAL","GLOBAL","real YouTube application loaded",PASS if visited else NOT_RUN,"environment",route,"full-live",{"visited":visited})
         record(results,"ROUTE-"+route.upper()+"-EXTENSION","GLOBAL","signed extension context and bridge observed",PASS if visited else NOT_RUN,"environment",route,"full-live",{"provider":provider})
@@ -2068,7 +2069,7 @@ def run(args:argparse.Namespace,features:list[Feature],source_root:Path,identity
     else:contract_routes=sorted({CONTRACTS[f.key].route for f in selected if f.key in CONTRACTS})
     signed_provider_expected=signed_provider_expectation(identity)
     frozen_candidate=getattr(args,"candidate_identity",None) or candidate_surface_identity(ROOT)
-    metadata={"startedAt":dt.datetime.now(dt.timezone.utc).isoformat(),"host":args.host,"port":args.port,"sourceRoot":str(source_root),"installedRoot":str(INSTALLED),"featureCount":len(features),"routes":ROUTES,
+    metadata={"startedAt":dt.datetime.now(dt.timezone.utc).isoformat(),"host":args.host,"port":args.port,"sourceRoot":str(source_root),"installedRoot":str(INSTALLED),"featureCount":len(selected),"routes":ROUTES,
       "sut":"signed-testflight" if args.sut=="signed" else "unpacked-opt-in","driverMode":args.driver_mode,"observerBindingMode":binding_mode,"lifecycleOwnership":lifecycle_ownership(args.driver_mode),"observer":{"required":args.driver_mode=="external","socket":args.observer_socket if args.driver_mode=="external" else None,"runId":args.observer_run_id if args.driver_mode=="external" else None,"capability":"redacted" if args.driver_mode=="external" else None,"serverUid":None},"observerServerUID":{"required":args.driver_mode=="external","status":"not-attempted" if args.driver_mode=="external" else "not-required"},"signedIdentity":identity,"candidate":frozen_candidate,
       "signedProvider":{"sut":args.sut,"expected":signed_provider_expected,"observations":[],"bound":False},"observerPlacement":None,
       "windowRequested":{"x":args.window_x,"y":args.window_y,"width":args.window_width,"height":args.window_height},
@@ -2079,7 +2080,7 @@ def run(args:argparse.Namespace,features:list[Feature],source_root:Path,identity
       "planDigest":hashlib.sha256(json.dumps([item.to_dict() for item in plan_list],sort_keys=True,separators=(",",":"),default=str).encode()).hexdigest(),
       "planCounts":{"contracted":sum(item.status=="contracted" for item in plan_list),"notApplicable":sum(item.status=="not_applicable" for item in plan_list),"uncontracted":sum(item.status=="uncontracted" for item in plan_list)}}
     driver=WebDriver(args.host,args.port);driver_process=stp_process=None;abort_contracts=False;automation_pid=getattr(args,"stp_pid",None) if binding_mode=="prebound-diagnostic" else None;automation_window_id=getattr(args,"window_id",None) if binding_mode=="prebound-diagnostic" else None;window_identity_verified=False;observer=None;observer_claimed=False;observer_final=None;title_nonce_a=fresh_title_nonce();title_nonce_b=fresh_title_nonce();title_nonce=title_nonce_b;bootstrapped_route=None;session_created=False;session_closed=False;window_close_requested=False;session_close_evidence=None
-    for f in features:source_only_results(results,f,full_live,plan_map.get(f.key))
+    for f in selected:source_only_results(results,f,full_live,plan_map.get(f.key))
     record(results,"GLOBAL-IDENTITY","GLOBAL","signed TestFlight bundle identity validated",PASS if identity.get("valid") else ENVIRONMENT_FAILURE,"identity","global","identity",identity)
     record(results,"GLOBAL-DRIVER","GLOBAL","Safari Technology Preview inspected session created",NOT_RUN,"environment","global","session",{"reason":"session not started"})
     record(results,"GLOBAL-KG271U","GLOBAL","actual Safari main window is inside KG271U",NOT_RUN,"environment","global","window",{"reason":"window not inspected"})
@@ -2336,7 +2337,7 @@ def main(argv:list[str]|None=None)->int:
     a=p.parse_args(argv);a.sut="unpacked" if a.unpacked else a.sut;a.driver_mode="external" if a.external_driver else a.driver_mode;source=INSTALLED if a.source=="installed" else ROOT
     try:a.account_fixture_data=load_account_fixture(a.account_fixture) if a.account_fixture else None
     except (OSError,ValueError,json.JSONDecodeError) as exc:raise SystemExit("invalid account fixture: "+str(exc))
-    if a.full_live and (a.limit is not None or a.feature_keys):raise SystemExit("--full-live requires the complete discovered plan; --limit/--feature are focused-mode options")
+    if a.full_live and (a.limit is not None or len(a.feature_keys or [])>1):raise SystemExit("--full-live accepts no --limit and at most one --feature")
     if (a.check_index or a.write_index) and not a.index_only:raise SystemExit("--check-index/--write-index require --index-only")
     if a.falsy_only:
         if not a.exercise_falsy:raise SystemExit("--falsy-only requires --exercise-falsy")

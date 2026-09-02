@@ -5,6 +5,7 @@ if [[ ${1:-} == --help || $# -eq 0 ]]; then
   cat <<'USAGE'
 usage: scripts/appstore/run_safari_e2e_manual.sh \
   --expected-version VERSION --expected-build BUILD \
+  [--feature STORAGE_KEY] \
   [--expected-extension-asset-sha256 SHA256] \
   [--allow-permission] [--allow-account] [--allow-destructive] \
   [--account-fixture REMOTE_JSON_PATH]
@@ -12,6 +13,7 @@ usage: scripts/appstore/run_safari_e2e_manual.sh \
 Run this as the active macOS desktop user. It starts only Safari Technology
 Preview's driver, binds the Aqua observer to the owned test window, runs the
 complete signed TestFlight catalog through codex-user-2, and cleans its children.
+Pass one --feature to run only that feature; omit it to run the full catalog.
 All three allow flags plus an exact account fixture are required for a release PASS.
 USAGE
   exit $(( $# == 0 ? 64 : 0 ))
@@ -47,6 +49,15 @@ DRIVER_LOG="${PREFIX}.driver.log"
 OBSERVER_PID=
 DRIVER_PID=
 REMOTE_CAPABILITY_PATH=
+FEATURE_COUNT=0
+
+for argument in "$@"; do
+  [[ $argument == --feature || $argument == --feature=* ]] && ((FEATURE_COUNT+=1))
+done
+if (( FEATURE_COUNT > 1 )); then
+  echo "manual runs accept at most one --feature" >&2
+  exit 64
+fi
 
 cleanup() {
   status=$?
