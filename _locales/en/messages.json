@@ -1,7 +1,7 @@
 {
   "dontShortenTitles": { 	"message": "Full Video Titles (don't shorten)" },
 	 "preferredDubbingLanguage": {
-		"message": "Preferred dubbing language"
+		"message": "Preferred auto-dubbing language"
 	},
   "hideSuggestedAction": {
     "message": "Hide Suggested Action 'View products'"
@@ -445,10 +445,10 @@
     "message": "Dim"
   },
   "disableAutoDubbing": {
-    "message": "Disable auto dubbing"
+    "message": "Disable auto-dubbing"
   },
   "hideAutoDubbedOptions": {
-    "message": "Hide auto-dubbed options in menu"
+    "message": "Hide auto-dubbing options in menu"
   },
   "disabled": {
     "message": "Disabled"
@@ -710,7 +710,7 @@
   },
   "hideLastframe": {
     "message": "Hide ended video (last frame)"
-  },  
+  },
   "hideFeaturedContent": {
     "message": "Hide featured content"
   },
@@ -1082,6 +1082,9 @@
   },
   "playbackSpeedButton": {
     "message": "Playback speed button"
+  },
+  "preferredSpeed": {
+    "message": "Preferred speed"
   },
   "playbackSpeedHotkey": {
     "message": "Playback speed hotkeys"
@@ -1650,6 +1653,45 @@
   "withoutVideos": {
     "message": "'Empty', without video previews"
   },
+  "videoFilters": {
+    "message": "Video Filters"
+  },
+  "videoFiltersButton": {
+    "message": "Video Filters button"
+  },
+  "preset": {
+    "message": "Preset"
+  },
+  "vivid": {
+    "message": "Vivid"
+  },
+  "cinema": {
+    "message": "Cinema"
+  },
+  "warm": {
+    "message": "Warm"
+  },
+  "cool": {
+    "message": "Cool"
+  },
+  "brightness": {
+    "message": "Brightness"
+  },
+  "contrast": {
+    "message": "Contrast"
+  },
+  "saturation": {
+    "message": "Saturation"
+  },
+  "hue": {
+    "message": "Hue"
+  },
+  "sharpness": {
+    "message": "Sharpness"
+  },
+  "gamma": {
+    "message": "Gamma"
+  },
   "yellow": {
     "message": "Yellow"
   },
@@ -1715,5 +1757,159 @@
   },
   "autoVideoRecovery": {
   "message": "Auto video recovery"
+  },
+  "hideWatchLaterVideos": {
+    "message": "Hide Watch Later Videos"
+  },
+  "maxWidthWithinPage": {
+    "message": "Max. width within the page"
+  },
+  "smartSpeedSelectYouTubeCategory": {
+    "message": "1. Select YouTube Category"
+  },
+  "smartSpeedSelectCategory": {
+    "message": "Select Category..."
+  },
+  "categoryEntertainment": {
+    "message": "Entertainment"
+  },
+  "categoryMusic": {
+    "message": "Music"
+  },
+  "categoryGaming": {
+    "message": "Gaming"
+  },
+  "categoryPeopleBlogs": {
+    "message": "People & Blogs"
+  },
+  "categoryComedy": {
+    "message": "Comedy"
+  },
+  "categoryHowtoStyle": {
+    "message": "Howto & Style"
+  },
+  "categoryFilmAnimation": {
+    "message": "Film & Animation"
+  },
+  "categoryEducation": {
+    "message": "Education"
+  },
+  "categoryScienceTechnology": {
+    "message": "Science & Technology"
+  },
+  "categorySports": {
+    "message": "Sports"
+  },
+  "categoryNewsPolitics": {
+    "message": "News & Politics"
+  },
+  "categoryAutosVehicles": {
+    "message": "Autos & Vehicles"
+  },
+  "categoryTravelEvents": {
+    "message": "Travel & Events"
+  },
+  "categoryPetsAnimals": {
+    "message": "Pets & Animals"
+  },
+  "categoryNonprofitsActivism": {
+    "message": "Nonprofits & Activism"
+  },
+  "smartSpeedAddSelectedCategory": {
+    "message": "➕ Add Selected Category"
+  },
+  "smartSpeedEnterAddChannelName": {
+    "message": "➕ Enter & Add Channel Name"
+  },
+  "smartSpeedChannelPrompt": {
+    "message": "Enter Channel Handle (e.g., @MrBeast) or Name:"
+  },
+  "smartSpeedWhitelistDisable": {
+    "message": "Whitelist (Disable Speedup)"
+  },
+  "smartSpeedMaxProfileSpeed": {
+    "message": "Max Speed"
+  },
+  "smartSpeedMinProfileSpeed": {
+    "message": "Min Speed"
+  },
+  "smartSpeedDeleteProfile": {
+    "message": "🗑️ Delete Profile"
+  },
+  "smartSpeedCaptionsEnable": {
+    "message": "Enable Transcript Analysis"
+  },
+  "smartSpeedCaptionWeight": {
+    "message": "Caption Weight"
+  },
+  "smartSpeedSpeechLeadSeconds": {
+    "message": "Speech Lead-in (Seconds)"
+  },
+  "smartSpeedSpeechReleaseSeconds": {
+    "message": "Speech Release (Seconds)"
+  },
+  "smartSpeedSponsorBlockEnable": {
+    "message": "SponsorBlock Integration"
+  },
+  "smartSpeedIntroOutroEnable": {
+    "message": "Intro/Outro Detection"
+  },
+  "smartSpeedIntroOutroMax": {
+    "message": "Intro/Outro Max Speed"
+  },
+  "smartSpeedSkipIntroButton": {
+    "message": "Show 'Skip Intro' Button"
+  },
+  "smartSpeedSkipSponsorButton": {
+    "message": "Show 'Skip Sponsor' Button"
+  },
+  "smartSpeedNoHeatmapFallbackMode": {
+    "message": "Fallback Mode (No Heatmap)"
+  },
+  "smartSpeedFallbackCaptions": {
+    "message": "Transcript / Speech Detection"
+  },
+  "smartSpeedFallbackDefaultSpeed": {
+    "message": "Normal Speed (1.0x)"
+  },
+  "smartSpeedFallbackFixedSpeed": {
+    "message": "Fixed Speed"
+  },
+  "smartSpeedNoHeatmapFixedSpeed": {
+    "message": "Fixed Fallback Speed"
+  },
+  "smartSpeedWhitelistShorts": {
+    "message": "Disable for Shorts"
+  },
+  "smartSpeedShortVideoThreshold": {
+    "message": "Short Video Threshold (Seconds)"
+  },
+  "smartSpeedWhitelistLive": {
+    "message": "Disable for Live Streams"
+  },
+  "smartSpeedRulePriority": {
+    "message": "Rule Evaluation Priority"
+  },
+  "smartSpeedPriorityChannelCategoryLanguage": {
+    "message": "Channel > Category > Language"
+  },
+  "smartSpeedPriorityChannelLanguageCategory": {
+    "message": "Channel > Language > Category"
+  },
+  "smartSpeedPriorityLanguageChannelCategory": {
+    "message": "Language > Channel > Category"
+  },
+  "smartSpeedPriorityCategoryChannelLanguage": {
+    "message": "Category > Channel > Language"
+  },
+  "smartSpeedSelectLanguage": {
+    "message": "2. Select Audio Language"
+  },
+  "smartSpeedSelectLanguagePlaceholder": {
+    "message": "Select Language..."
+  },
+  "smartSpeedAddSelectedLanguage": {
+    "message": "➕ Add Selected Language"
   }
 }
+
