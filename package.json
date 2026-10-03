@@ -30,94 +30,95 @@
   ],
   "overrides": {
     "@eslint-community/eslint-utils": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "@eslint/eslintrc": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "@eslint/migrate-config": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "@humanwhocodes/config-array": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "@jest/core": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "@jest/expect": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "@jest/globals": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "@jest/reporters": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "@jest/transform": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "babel-jest": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "babel-plugin-istanbul": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "brace-expansion": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "create-jest": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "eslint": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12",
+      "js-yaml": "4.3.2"
     },
     "eslint-plugin-compat": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "file-entry-cache": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "flat-cache": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "glob": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "jest": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "jest-circus": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "jest-cli": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "jest-config": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "jest-resolve-dependencies": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "jest-runner": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "jest-runtime": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "jest-snapshot": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "jslint": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "minimatch": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "rimraf": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     },
     "test-exclude": {
-      "brace-expansion": "5.0.9"
+      "brace-expansion": "5.0.12"
     }
   }
 }
