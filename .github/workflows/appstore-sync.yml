@@ -55,7 +55,23 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git switch -c "$SYNC_BRANCH"
-          git merge --no-edit upstream/master
+          if ! git merge --no-edit upstream/master; then
+            conflicts=$(git diff --name-only --diff-filter=U)
+            if [[ $conflicts != package-lock.json ]]; then
+              printf 'Upstream merge has unsupported conflicts:\n' >&2
+              printf '  %s\n' "$conflicts" >&2
+              exit 1
+            fi
+
+            # package.json is the dependency source of truth. Seed the lockfile
+            # from upstream, then reconcile it with the merged manifest using a
+            # fixed npm version so scheduled runs produce the same result.
+            git checkout --theirs package-lock.json
+            npx --yes npm@11.19.0 install --package-lock-only \
+              --ignore-scripts --no-audit --no-fund
+            git add package-lock.json
+            git commit --no-edit
+          fi
 
           git checkout origin/appstore -- \
             .appstore \
