@@ -479,6 +479,7 @@ ImprovedTube.initPlayer = function () {
 		if (this.storage.player_always_repeat === true) { ImprovedTube.playerRepeat(); }
 
 		ImprovedTube.playerScreenshotButton();
+		ImprovedTube.playerVideoFiltersButton();
 		ImprovedTube.playerRepeatButton();
 		ImprovedTube.playerRotateButton();
 		ImprovedTube.playerPopupButton();
@@ -497,8 +498,13 @@ ImprovedTube.initPlayer = function () {
 		if (ImprovedTube.storage.hide_auto_dubbed_options === true) { ImprovedTube.observeAutoDubbedMenu(); }
 		if (ImprovedTube.storage.preferred_dubbing_language) { ImprovedTube.preferredDubbingLanguage(); }
 		if (ImprovedTube.storage.player_default_dubbed_language && ImprovedTube.storage.player_default_dubbed_language !== 'disabled') { ImprovedTube.selectDubbedLanguage(); }
+		if (ImprovedTube.storage.smart_speed === true) {
+			if (ImprovedTube.smartSpeed?.init) { ImprovedTube.smartSpeed.init(); }
+			else if (ImprovedTube.heatmap?.init) { ImprovedTube.heatmap.init(); }
+		}
 	}
 };
+
 
 var timeUpdateInterval = null;
 var noTimeUpdate = null;
@@ -845,7 +851,8 @@ ImprovedTube.showStatus = function (value) {
 
 	ImprovedTube.status_timer = setTimeout(function () { ImprovedTube.elements.status.remove(); }, 500);
 
-	this.elements.player.appendChild(this.elements.status);
+	const player = (document.documentElement.dataset.pageType === 'shorts') ? this.elements.shorts_player : this.elements.player;
+	player.appendChild(this.elements.status);
 };
 
 ImprovedTube.videoId = (url = document.URL) => url.match(ImprovedTube.regex.video_id)?.[1] || new URL(url).searchParams.get('v') || movie_player?.getVideoData?.().video_id || (console.log('No VIDEO ID URL MATCH match: Regex & url are:', ImprovedTube.regex.video_id, url), undefined);
