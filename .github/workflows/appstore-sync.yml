@@ -55,7 +55,22 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git switch -c "$SYNC_BRANCH"
-          git merge --no-edit upstream/master
+          if ! git merge --no-edit upstream/master; then
+            # The publisher keeps its own dependency overrides, so the
+            # lockfile is the only conflict resolved automatically: keep the
+            # publisher lockfile and regenerate it against the merged
+            # package.json. Any other conflict needs a human.
+            CONFLICTS=$(git diff --name-only --diff-filter=U)
+            if [ "$CONFLICTS" != "package-lock.json" ]; then
+              echo "Upstream merge needs manual resolution:" >&2
+              echo "$CONFLICTS" >&2
+              exit 1
+            fi
+            git checkout --ours package-lock.json
+            npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+            git add package-lock.json
+            git commit --no-edit
+          fi
 
           git checkout origin/appstore -- \
             .appstore \

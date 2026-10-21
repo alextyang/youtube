@@ -1,3 +1,4 @@
 node_modules
+.appstore/testing/e2e-results/
 __pycache__/
 *.pyc

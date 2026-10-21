@@ -111,6 +111,106 @@ extension.skeleton.main.layers.section.player.on.click = {
 			text: 'ambientLighting',
 			value: true
 		},
+		video_filters: {
+			component: 'button',
+			text: 'videoFilters',
+			on: {
+				click: {
+					component: 'section',
+					variant: 'card',
+					video_filters_activate: {
+						component: 'switch',
+						text: 'activate',
+						storage: 'video_filters_activate',
+						value: false
+					},
+					video_filters_preset: {
+						component: 'select',
+						text: 'preset',
+						storage: 'video_filters_preset',
+						options: [{
+							text: 'normal',
+							value: 'normal'
+						}, {
+							text: 'vivid',
+							value: 'vivid'
+						}, {
+							text: 'cinema',
+							value: 'cinema'
+						}, {
+							text: 'warm',
+							value: 'warm'
+						}, {
+							text: 'cool',
+							value: 'cool'
+						}, {
+							text: 'custom',
+							value: 'custom'
+						}]
+					},
+					video_filter_brightness: {
+						component: 'slider',
+						variant: 'row',
+						text: 'brightness',
+						storage: 'video_filter_brightness',
+						min: 50,
+						max: 200,
+						step: 5,
+						value: 100
+					},
+					video_filter_contrast: {
+						component: 'slider',
+						variant: 'row',
+						text: 'contrast',
+						storage: 'video_filter_contrast',
+						min: 50,
+						max: 200,
+						step: 5,
+						value: 100
+					},
+					video_filter_saturation: {
+						component: 'slider',
+						variant: 'row',
+						text: 'saturation',
+						storage: 'video_filter_saturation',
+						min: 0,
+						max: 300,
+						step: 10,
+						value: 100
+					},
+					video_filter_hue: {
+						component: 'slider',
+						variant: 'row',
+						text: 'hue',
+						storage: 'video_filter_hue',
+						min: -180,
+						max: 180,
+						step: 5,
+						value: 0
+					},
+					video_filter_sharpness: {
+						component: 'slider',
+						variant: 'row',
+						text: 'sharpness',
+						storage: 'video_filter_sharpness',
+						min: 0,
+						max: 5,
+						step: 0.5,
+						value: 0
+					},
+					video_filter_gamma: {
+						component: 'slider',
+						variant: 'row',
+						text: 'gamma',
+						storage: 'video_filter_gamma',
+						min: 0.5,
+						max: 2.5,
+						step: 0.1,
+						value: 1
+					}
+				}
+			}
+		},
 		player_autoPip: {
 			component: 'switch',
 			text: 'Auto_PiP_picture_in_picture',
@@ -233,6 +333,97 @@ extension.skeleton.main.layers.section.player.on.click = {
 							value: 0.5, min: 0.01, max: 1.0, step: 0.01
 						}
 					},
+					smart_speed_signals_card: {
+						component: 'section',
+						variant: 'card',
+						smart_speed_captions_enabled: {
+							component: 'switch',
+							text: 'smartSpeedCaptionsEnable',
+							value: true
+						},
+						smart_speed_caption_weight: {
+							component: 'slider',
+							text: 'smartSpeedCaptionWeight',
+							value: 1.0, min: 0.0, max: 3.0, step: 0.1
+						},
+						smart_speed_speech_lead_seconds: {
+							component: 'slider',
+							text: 'smartSpeedSpeechLeadSeconds',
+							value: 5.0, min: 0.0, max: 10.0, step: 0.5
+						},
+						smart_speed_speech_release_seconds: {
+							component: 'slider',
+							text: 'smartSpeedSpeechReleaseSeconds',
+							value: 2.0, min: 0.0, max: 5.0, step: 0.5
+						}
+					},
+					smart_speed_overrides_card: {
+						component: 'section',
+						variant: 'card',
+						smart_speed_sponsorblock_enabled: {
+							component: 'switch',
+							text: 'smartSpeedSponsorBlockEnable',
+							value: true
+						},
+						smart_speed_introoutro_enabled: {
+							component: 'switch',
+							text: 'smartSpeedIntroOutroEnable',
+							value: true
+						},
+						smart_speed_introoutro_max: {
+							component: 'slider',
+							text: 'smartSpeedIntroOutroMax',
+							value: 2.0, min: 1.0, max: 5.0, step: 0.5
+						},
+						smart_speed_skip_intro_button: {
+							component: 'switch',
+							text: 'smartSpeedSkipIntroButton',
+							value: true
+						},
+						smart_speed_skip_sponsor_button: {
+							component: 'switch',
+							text: 'smartSpeedSkipSponsorButton',
+							value: true
+						}
+					},
+					smart_speed_fallback_card: {
+						component: 'section',
+						variant: 'card',
+						smart_speed_no_heatmap_fallback_mode: {
+							component: 'select',
+							text: 'smartSpeedNoHeatmapFallbackMode',
+							options: [
+								{ text: 'smartSpeedFallbackCaptions', value: 'captions' },
+								{ text: 'smartSpeedFallbackDefaultSpeed', value: 'default_speed' },
+								{ text: 'smartSpeedFallbackFixedSpeed', value: 'fixed_speed' }
+							],
+							value: 'captions'
+						},
+						smart_speed_no_heatmap_fixed_speed: {
+							component: 'slider',
+							text: 'smartSpeedNoHeatmapFixedSpeed',
+							value: 1.5, min: 1.0, max: 4.0, step: 0.1
+						}
+					},
+					smart_speed_exclusions_card: {
+						component: 'section',
+						variant: 'card',
+						smart_speed_whitelist_shorts: {
+							component: 'switch',
+							text: 'smartSpeedWhitelistShorts',
+							value: true
+						},
+						smart_speed_short_video_threshold_seconds: {
+							component: 'slider',
+							text: 'smartSpeedShortVideoThreshold',
+							value: 120, min: 30, max: 300, step: 10
+						},
+						smart_speed_whitelist_live: {
+							component: 'switch',
+							text: 'smartSpeedWhitelistLive',
+							value: true
+						}
+					},
 					smart_speed_profiles_card: {
 						component: 'button',
 						text: 'smartSpeedProfiles',
@@ -240,6 +431,17 @@ extension.skeleton.main.layers.section.player.on.click = {
 							click: {
 								component: 'section',
 								variant: 'card',
+								smart_speed_rule_priority: {
+									component: 'select',
+									text: 'smartSpeedRulePriority',
+									options: [
+										{ text: 'smartSpeedPriorityChannelCategoryLanguage', value: 'channel,category,language' },
+										{ text: 'smartSpeedPriorityChannelLanguageCategory', value: 'channel,language,category' },
+										{ text: 'smartSpeedPriorityLanguageChannelCategory', value: 'language,channel,category' },
+										{ text: 'smartSpeedPriorityCategoryChannelLanguage', value: 'category,channel,language' }
+									],
+									value: 'channel,category,language'
+								},
 								smart_speed_profile_list: {
 									component: 'section',
 									on: {
@@ -250,50 +452,46 @@ extension.skeleton.main.layers.section.player.on.click = {
 												container.innerHTML = '';
 												let skeleton = {};
 												let ts = Date.now(); // Unique ID to prevent caching bugs
-
-												// THE FIX: Check if strictly undefined (first time setup), NOT if it's empty
 												let storedProfiles = satus.storage.get('smart_speed_profiles');
 												let profiles;
 
 												if (storedProfiles === undefined) {
-													// 100% strict defaults as requested
 													profiles = {
 														"Music": { max: 2.0, min: 1.0, sens: 0.5, whitelist: true },
 														"Education": { max: 2.0, min: 1.0, sens: 0.5, whitelist: false }
 													};
 													satus.storage.set('smart_speed_profiles', profiles);
 												} else {
-													// It's not the first run, respect the user's list (even if it's completely empty!)
 													profiles = typeof storedProfiles === 'object' && storedProfiles !== null ? storedProfiles : {};
 												}
 
 												let tempCategory = 'none';
+												let tempLang = 'none';
 
-												// 1. ADD NEW RULES SECTION
 												skeleton['add_controls_' + ts] = {
 													component: 'section',
 													variant: 'card',
 
 													add_category_dropdown: {
 														component: 'select',
-														text: '1. Select YouTube Category',
+														text: 'smartSpeedSelectYouTubeCategory',
 														options: [
-															{value: 'none', text: 'Select Category...'},
-															{value: 'Entertainment', text: 'Entertainment'},
-															{value: 'Music', text: 'Music'},
-															{value: 'Gaming', text: 'Gaming'},
-															{value: 'People & Blogs', text: 'People & Blogs'},
-															{value: 'Comedy', text: 'Comedy'},
-															{value: 'Howto & Style', text: 'Howto & Style'},
-															{value: 'Film & Animation', text: 'Film & Animation'},
-															{value: 'Education', text: 'Education'},
-															{value: 'Science & Technology', text: 'Science & Technology'},
-															{value: 'Sports', text: 'Sports'},
-															{value: 'News & Politics', text: 'News & Politics'},
-															{value: 'Autos & Vehicles', text: 'Autos & Vehicles'},
-															{value: 'Travel & Events', text: 'Travel & Events'},
-															{value: 'Pets & Animals', text: 'Pets & Animals'},
-															{value: 'Nonprofits & Activism', text: 'Nonprofits & Activism'}
+															{value: 'none', text: 'smartSpeedSelectCategory'},
+															{value: 'Entertainment', text: 'categoryEntertainment'},
+															{value: 'Music', text: 'categoryMusic'},
+															{value: 'Gaming', text: 'categoryGaming'},
+															{value: 'People & Blogs', text: 'categoryPeopleBlogs'},
+															{value: 'Comedy', text: 'categoryComedy'},
+															{value: 'Howto & Style', text: 'categoryHowtoStyle'},
+															{value: 'Film & Animation', text: 'categoryFilmAnimation'},
+															{value: 'Education', text: 'categoryEducation'},
+															{value: 'Science & Technology', text: 'categoryScienceTechnology'},
+															{value: 'Sports', text: 'categorySports'},
+															{value: 'News & Politics', text: 'categoryNewsPolitics'},
+															{value: 'Autos & Vehicles', text: 'categoryAutosVehicles'},
+															{value: 'Travel & Events', text: 'categoryTravelEvents'},
+															{value: 'Pets & Animals', text: 'categoryPetsAnimals'},
+															{value: 'Nonprofits & Activism', text: 'categoryNonprofitsActivism'}
 														],
 														on: {
 															change: function() { tempCategory = this.value; }
@@ -301,14 +499,70 @@ extension.skeleton.main.layers.section.player.on.click = {
 													},
 													add_category_btn: {
 														component: 'button',
-														text: '➕ Add Selected Category',
+														text: 'smartSpeedAddSelectedCategory',
 														on: {
 															click: function() {
 																if (tempCategory !== 'none') {
 																	let freshState = Object.assign({}, satus.storage.get('smart_speed_profiles') || {});
 																	let newObj = {};
-																	// 100% strict defaults as requested
 																	newObj[tempCategory] = { max: 2.0, min: 1.0, sens: 0.5, whitelist: false };
+
+																	satus.storage.set('smart_speed_profiles', Object.assign(newObj, freshState));
+																	updateView();
+																}
+															}
+														}
+													},
+
+													add_language_dropdown: {
+														component: 'select',
+														text: 'smartSpeedSelectLanguage',
+														options: [
+															{value: 'none', text: 'smartSpeedSelectLanguagePlaceholder'},
+															{value: 'en', text: 'English'},
+															{value: 'hi', text: 'Hindi'},
+															{value: 'es', text: 'Spanish'},
+															{value: 'pt', text: 'Portuguese'},
+															{value: 'zh', text: 'Chinese'},
+															{value: 'ja', text: 'Japanese'},
+															{value: 'ko', text: 'Korean'},
+															{value: 'de', text: 'German'},
+															{value: 'fr', text: 'French'},
+															{value: 'ru', text: 'Russian'},
+															{value: 'ar', text: 'Arabic'},
+															{value: 'it', text: 'Italian'},
+															{value: 'id', text: 'Indonesian'},
+															{value: 'tr', text: 'Turkish'},
+															{value: 'vi', text: 'Vietnamese'},
+															{value: 'th', text: 'Thai'},
+															{value: 'pl', text: 'Polish'},
+															{value: 'nl', text: 'Dutch'},
+															{value: 'uk', text: 'Ukrainian'},
+															{value: 'sv', text: 'Swedish'},
+															{value: 'bn', text: 'Bangla'},
+															{value: 'ta', text: 'Tamil'},
+															{value: 'te', text: 'Telugu'},
+															{value: 'mr', text: 'Marathi'},
+															{value: 'ur', text: 'Urdu'},
+															{value: 'fa', text: 'Persian'},
+															{value: 'cs', text: 'Czech'},
+															{value: 'ro', text: 'Romanian'},
+															{value: 'hu', text: 'Hungarian'},
+															{value: 'el', text: 'Greek'}
+														],
+														on: {
+															change: function() { tempLang = this.value; }
+														}
+													},
+													add_language_btn: {
+														component: 'button',
+														text: 'smartSpeedAddSelectedLanguage',
+														on: {
+															click: function() {
+																if (tempLang !== 'none') {
+																	let freshState = Object.assign({}, satus.storage.get('smart_speed_profiles') || {});
+																	let newObj = {};
+																	newObj['lang:' + tempLang] = { max: 2.0, min: 1.0, sens: 0.5, whitelist: false };
 
 																	satus.storage.set('smart_speed_profiles', Object.assign(newObj, freshState));
 																	updateView();
@@ -319,14 +573,13 @@ extension.skeleton.main.layers.section.player.on.click = {
 
 													add_channel_btn: {
 														component: 'button',
-														text: '➕ Enter & Add Channel Name',
+														text: 'smartSpeedEnterAddChannelName',
 														on: {
 															click: function() {
-																let name = prompt("Enter Channel Handle (e.g., @MrBeast) or Name:");
+																let name = prompt(satus.locale.get('smartSpeedChannelPrompt'));
 																if (name) {
 																	let freshState = Object.assign({}, satus.storage.get('smart_speed_profiles') || {});
 																	let newObj = {};
-																	// 100% strict defaults as requested
 																	newObj[name] = { max: 2.0, min: 1.0, sens: 0.5, whitelist: false };
 
 																	satus.storage.set('smart_speed_profiles', Object.assign(newObj, freshState));
@@ -337,16 +590,32 @@ extension.skeleton.main.layers.section.player.on.click = {
 													}
 												};
 
-												// 2. ACTIVE RULES LIST
+												const langNames = {
+													'en':'English', 'hi':'Hindi', 'es':'Spanish', 'pt':'Portuguese', 'zh':'Chinese',
+													'ja':'Japanese', 'ko':'Korean', 'de':'German', 'fr':'French', 'ru':'Russian',
+													'ar':'Arabic', 'it':'Italian', 'id':'Indonesian', 'tr':'Turkish', 'vi':'Vietnamese',
+													'th':'Thai', 'pl':'Polish', 'nl':'Dutch', 'uk':'Ukrainian', 'sv':'Swedish',
+													'bn':'Bangla', 'ta':'Tamil', 'te':'Telugu', 'mr':'Marathi', 'ur':'Urdu',
+													'fa':'Persian', 'cs':'Czech', 'ro':'Romanian', 'hu':'Hungarian', 'el':'Greek'
+												};
+
 												for (let key in profiles) {
 													let safeKey = key.replace(/[^a-zA-Z0-9]/g, '');
+													let ruleTitle;
+													if (key.startsWith('lang:')) {
+														let lCode = key.substring(5);
+														ruleTitle = 'Audio Language: ' + (langNames[lCode] || lCode.toUpperCase());
+													} else {
+														ruleTitle = ({'Entertainment':'categoryEntertainment', 'Music':'categoryMusic', 'Gaming':'categoryGaming', 'People & Blogs':'categoryPeopleBlogs', 'Comedy':'categoryComedy', 'Howto & Style':'categoryHowtoStyle', 'Film & Animation':'categoryFilmAnimation', 'Education':'categoryEducation', 'Science & Technology':'categoryScienceTechnology', 'Sports':'categorySports', 'News & Politics':'categoryNewsPolitics', 'Autos & Vehicles':'categoryAutosVehicles', 'Travel & Events':'categoryTravelEvents', 'Pets & Animals':'categoryPetsAnimals', 'Nonprofits & Activism':'categoryNonprofitsActivism'}[key] || key);
+													}
+
 													skeleton['rule_' + safeKey + '_' + ts] = {
 														component: 'section',
 														variant: 'card',
-														title: key,
+														title: ruleTitle,
 														whitelist_toggle: {
 															component: 'switch',
-															text: 'Whitelist (Disable Speedup)',
+															text: 'smartSpeedWhitelistDisable',
 															value: profiles[key].whitelist || false,
 															on: {
 																change: function() {
@@ -357,7 +626,7 @@ extension.skeleton.main.layers.section.player.on.click = {
 															}
 														},
 														max_slider: {
-															component: 'slider', text: 'Max Speed', value: profiles[key].max, min: 1.0, max: 4.0, step: 0.1,
+															component: 'slider', text: 'smartSpeedMaxProfileSpeed', value: profiles[key].max, min: 1.0, max: 4.0, step: 0.1,
 															on: {
 																change: function() {
 																	let freshState = Object.assign({}, satus.storage.get('smart_speed_profiles'));
@@ -367,7 +636,7 @@ extension.skeleton.main.layers.section.player.on.click = {
 															}
 														},
 														min_slider: {
-															component: 'slider', text: 'Min Speed', value: profiles[key].min, min: 0.5, max: 2.0, step: 0.1,
+															component: 'slider', text: 'smartSpeedMinProfileSpeed', value: profiles[key].min, min: 0.5, max: 2.0, step: 0.1,
 															on: {
 																change: function() {
 																	let freshState = Object.assign({}, satus.storage.get('smart_speed_profiles'));
@@ -377,7 +646,7 @@ extension.skeleton.main.layers.section.player.on.click = {
 															}
 														},
 														sens_slider: {
-															component: 'slider', text: 'Sensitivity', value: profiles[key].sens || 0.5, min: 0.01, max: 1.0, step: 0.01,
+															component: 'slider', text: 'smartSpeedSensitivity', value: profiles[key].sens || 0.5, min: 0.01, max: 1.0, step: 0.01,
 															on: {
 																change: function() {
 																	let freshState = Object.assign({}, satus.storage.get('smart_speed_profiles'));
@@ -387,7 +656,7 @@ extension.skeleton.main.layers.section.player.on.click = {
 															}
 														},
 														delete_btn: {
-															component: 'button', text: '🗑️ Delete Profile',
+															component: 'button', text: 'smartSpeedDeleteProfile',
 															on: {
 																click: function() {
 																	let freshState = Object.assign({}, satus.storage.get('smart_speed_profiles'));
@@ -1479,6 +1748,10 @@ extension.skeleton.main.layers.section.player.on.click = {
 								}
 							}
 						},
+						block_opus: {
+							component: 'switch',
+							text: 'blockOpus'
+						},
 						sanitize: function () {
 							if (satus.storage.get('player_h264')) {
 								if ((!satus.storage.get('block_vp9') || !satus.storage.get('block_av1') && satus.storage.get('block_h264')) ||
@@ -1671,6 +1944,13 @@ extension.skeleton.main.layers.section.player.on.click = {
 				return options;
 			}
 		},
+		player_video_filters_button: {
+			component: 'switch',
+			text: 'videoFiltersButton',
+			id: 'player_video_filters_button',
+			storage: 'player_video_filters_button',
+			value: true
+		},
 
 		player_playback_speed_button: {
 			component: 'switch',
@@ -1678,23 +1958,25 @@ extension.skeleton.main.layers.section.player.on.click = {
 			storage: 'player_playback_speed_button',
 			id: 'player_playback_speed_button'
 		},
-		
-		player_playback_speed_button_b: {
-			component: 'switch',
-			text: 'playbackSpeedButton',
-			storage: 'player_playback_speed_button_b',
-			id: 'player_playback_speed_button_b',
-			children: [{
-				id: 'player_custom_playback_speed',
-				storage: 'player_custom_playback_speed',
-				component: 'slider',
-				text: 'preferredSpeed',
-				min: 0.25,
-				max: 4,
-				step: 0.05,
-				text: true,
-				value: 1.25
-			}]
+		player_playback_speed_slider: {
+			id: 'player_custom_playback_speed',
+			storage: 'player_custom_playback_speed',
+			component: 'slider',
+			text: 'preferredSpeed',
+			min: 0.1,
+			max: 16,
+			step: 0.05,
+			value: 1.25
+		},
+		player_playback_speed_step: {
+			storage: 'player_playback_speed_step',
+			component: 'slider',
+			text: 'playbackSpeedStep',
+			textarea: true,
+			min: 0.01,
+			max: 1,
+			step: 0.01,
+			value: 0.25
 		},
 		
 		player_cinema_mode_button: {

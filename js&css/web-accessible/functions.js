@@ -139,8 +139,8 @@ ImprovedTube.ytElementsHandler = function (node) {
 		ImprovedTube.elements.subscribe_button = node;
 		ImprovedTube.improvedtubeYoutubeButtonsUnderPlayer();
 	} else if (id === 'chat-messages') {
-		this.elements.livechat.button = document.querySelector('[aria-label="Close"]');
-		// console.log(document.querySelector('[aria-label="Close"]'))
+		var chatRoot = node.closest('yt-live-chat-renderer, ytd-live-chat-frame, #chat-container');
+		this.elements.livechat.button = chatRoot ? chatRoot.querySelector('button[aria-label="Close"]') : null;
 		this.livechat();
 	} else if (name === 'YTD-MASTHEAD') {
 		if (!this.elements.masthead) {
@@ -227,6 +227,7 @@ ImprovedTube.ytElementsHandler = function (node) {
 			let thumbnailObserverAttached = false;
 			const observer = new MutationObserver((mutationList) => {
 				const els = ImprovedTube.elements;
+				const hadLeftControls = !!els.player_left_controls;
 				for (const mutation of mutationList) {
 					if (mutation.type !== 'childList') continue;
 					for (const addedNode of mutation.addedNodes) {
@@ -241,6 +242,12 @@ ImprovedTube.ytElementsHandler = function (node) {
 				if (!thumbnailObserverAttached && els.player_thumbnail) {
 					thumbnailObserverAttached = true;
 					observePlayerThumbnail(els.player_thumbnail);
+				}
+				// Repeat setup no-ops until left controls exist. Retry once when this
+				// batch first discovers them, before the fallback observer disconnects.
+				// Later mutations, including the button's own insertion, must not retry.
+				if (!hadLeftControls && els.player_left_controls) {
+					ImprovedTube.playerRepeatButton();
 				}
 				// Stop observing once all elements have been found
 				if (els.player_left_controls && els.player_right_controls && els.player_thumbnail && els.player_subtitles_button) {
@@ -369,7 +376,6 @@ ImprovedTube.videoPageUpdate = function () {
 		ImprovedTube.playerSize();
 		if (this.storage.player_always_repeat === true) { ImprovedTube.playerRepeat(); };
 		ImprovedTube.playerPlaybackSpeedButton();
-					ImprovedTube.playerPlaybackSpeedButtonB();
 		ImprovedTube.playerScreenshotButton();
 		ImprovedTube.addYouTubeReturnButton();
 		ImprovedTube.playerRepeatButton();
@@ -479,6 +485,7 @@ ImprovedTube.initPlayer = function () {
 		if (this.storage.player_always_repeat === true) { ImprovedTube.playerRepeat(); }
 
 		ImprovedTube.playerScreenshotButton();
+		ImprovedTube.playerVideoFiltersButton();
 		ImprovedTube.playerRepeatButton();
 		ImprovedTube.playerRotateButton();
 		ImprovedTube.playerPopupButton();
@@ -486,7 +493,6 @@ ImprovedTube.initPlayer = function () {
 		ImprovedTube.playerRewindAndForwardButtons();
 		ImprovedTube.playerIncreaseDecreaseSpeedButtons();
 		ImprovedTube.playerPlaybackSpeedButton();
-					ImprovedTube.playerPlaybackSpeedButtonB();
 		ImprovedTube.playerHamburgerButton();
 		ImprovedTube.playerControls();
 		ImprovedTube.playerHideProgressPreview();
@@ -497,8 +503,13 @@ ImprovedTube.initPlayer = function () {
 		if (ImprovedTube.storage.hide_auto_dubbed_options === true) { ImprovedTube.observeAutoDubbedMenu(); }
 		if (ImprovedTube.storage.preferred_dubbing_language) { ImprovedTube.preferredDubbingLanguage(); }
 		if (ImprovedTube.storage.player_default_dubbed_language && ImprovedTube.storage.player_default_dubbed_language !== 'disabled') { ImprovedTube.selectDubbedLanguage(); }
+		if (ImprovedTube.storage.smart_speed === true) {
+			if (ImprovedTube.smartSpeed?.init) { ImprovedTube.smartSpeed.init(); }
+			else if (ImprovedTube.heatmap?.init) { ImprovedTube.heatmap.init(); }
+		}
 	}
 };
+
 
 var timeUpdateInterval = null;
 var noTimeUpdate = null;
@@ -845,7 +856,8 @@ ImprovedTube.showStatus = function (value) {
 
 	ImprovedTube.status_timer = setTimeout(function () { ImprovedTube.elements.status.remove(); }, 500);
 
-	this.elements.player.appendChild(this.elements.status);
+	const player = (document.documentElement.dataset.pageType === 'shorts') ? this.elements.shorts_player : this.elements.player;
+	player.appendChild(this.elements.status);
 };
 
 ImprovedTube.videoId = (url = document.URL) => url.match(ImprovedTube.regex.video_id)?.[1] || new URL(url).searchParams.get('v') || movie_player?.getVideoData?.().video_id || (console.log('No VIDEO ID URL MATCH match: Regex & url are:', ImprovedTube.regex.video_id, url), undefined);

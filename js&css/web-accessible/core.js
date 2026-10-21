@@ -187,8 +187,8 @@ document.addEventListener('it-message-from-extension', function () {
 				ImprovedTube.playlistReversed = ImprovedTube.storage.playlist_reversed_active;
 			}
 
-			if (ImprovedTube.storage.block_vp9 || ImprovedTube.storage.block_av1 || ImprovedTube.storage.block_h264) {
-				let atlas = { block_vp9: 'vp9|vp09', block_h264: 'avc1', block_av1: 'av01' },
+			if (ImprovedTube.storage.block_vp9 || ImprovedTube.storage.block_av1 || ImprovedTube.storage.block_h264 || ImprovedTube.storage.block_opus) {
+				let atlas = { block_vp9: 'vp9|vp09', block_h264: 'avc1', block_av1: 'av01', block_opus: 'opus' },
 					codec = Object.keys(atlas).reduce(function (all, key) {
 						return ImprovedTube.storage[key] ? ((all ? all + '|' : '') + atlas[key]) : all
 					}, '');
@@ -209,6 +209,9 @@ document.addEventListener('it-message-from-extension', function () {
 			ImprovedTube.init();
 			ImprovedTube.blocklistInit();
 
+			// let other scripts and extensions know the initialization is done
+			document.dispatchEvent(new CustomEvent('init_completed'));
+
 			/*--------------------------------------------------------------
 			# Immediate reaction to any change of our extension storage (settings)
 					While most of our features are chosen permanently (set and forget) and need to run with YouTube,
@@ -221,8 +224,8 @@ document.addEventListener('it-message-from-extension', function () {
 			let camelized_key = message.camelizedKey;
 
 			ImprovedTube.storage[message.key] = message.value;
-			if (['block_vp9', 'block_h264', 'block_av1'].includes(message.key)) {
-				let atlas = { block_vp9: 'vp9|vp09', block_h264: 'avc1', block_av1: 'av01' }
+			if (['block_vp9', 'block_h264', 'block_av1', 'block_opus'].includes(message.key)) {
+				let atlas = { block_vp9: 'vp9|vp09', block_h264: 'avc1', block_av1: 'av01', block_opus: 'opus' }
 				localStorage['it-codec'] = Object.keys(atlas).reduce(function (all, key) {
 					return ImprovedTube.storage[key] ? ((all ? all + '|' : '') + atlas[key]) : all
 				}, '');
@@ -241,6 +244,27 @@ document.addEventListener('it-message-from-extension', function () {
 				case 'blocklist':
 				case 'blocklistActivate':
 					ImprovedTube.blocklistInit();
+					break
+
+				case 'videoFiltersActivate':
+				case 'videoFiltersPreset':
+				case 'videoFilterBrightness':
+				case 'videoFilterContrast':
+				case 'videoFilterSaturation':
+				case 'videoFilterHue':
+				case 'videoFilterSharpness':
+				case 'videoFilterGamma':
+					if (typeof ImprovedTube.videoFilters === 'function') {
+						ImprovedTube.videoFilters();
+					}
+					break
+
+				case 'playerVideoFiltersButton':
+					if (ImprovedTube.storage.player_video_filters_button === false) {
+						ImprovedTube.elements.buttons['it-video-filters-button']?.remove();
+					} else if (typeof ImprovedTube.playerVideoFiltersButton === 'function') {
+						ImprovedTube.playerVideoFiltersButton();
+					}
 					break
 
 				case 'playerPlaybackSpeed':
@@ -399,10 +423,12 @@ document.addEventListener('it-message-from-extension', function () {
 					break
 
 				case 'playerPlaybackSpeedButton':
-					if (ImprovedTube.storage.player_playback_speed_button === false) {
-						document.querySelector('#it-playback-speed-button')?.remove();
-					} else if (ImprovedTube.storage.player_playback_speed_button === true) {
-						ImprovedTube.playerPlaybackSpeedButton();
+					if (ImprovedTube.storage.player_playback_speed_button !== true) { // Also clean up when the setting is removed.
+						ImprovedTube.playerPlaybackSpeedButtonVideo?.removeEventListener(
+							'ratechange', ImprovedTube.playerPlaybackSpeedButtonUpdate
+						);
+						delete ImprovedTube.playerPlaybackSpeedButtonVideo;
+						ImprovedTube.elements.buttons['it-playback-speed-button']?.remove();
 					}
 					break
 
@@ -539,11 +565,44 @@ document.addEventListener('it-message-from-extension', function () {
 						ImprovedTube.selectDubbedLanguage();
 					}
 					break
-				case  'smartSpeed':
-                    if (ImprovedTube.storage.smart_speed === true) { if(ImprovedTube.heatmap) {ImprovedTube.heatmap.init(); };
-                    } else if (ImprovedTube.storage.smart_speed === false) { if(ImprovedTube.heatmap) { ImprovedTube.heatmap.isEnabled = false; document.querySelector("video").playbackRate = 1.0; }
-                    }
+				case 'smartSpeed':
+				case 'smartSpeedIndicator':
+				case 'smartSpeedMin':
+				case 'smartSpeedMax':
+				case 'smartSpeedSensitivity':
+				case 'smartSpeedCaptionsEnabled':
+				case 'smartSpeedCaptionWeight':
+				case 'smartSpeedSpeechLeadSeconds':
+				case 'smartSpeedSpeechReleaseSeconds':
+				case 'smartSpeedSponsorblockEnabled':
+				case 'smartSpeedIntrooutroEnabled':
+				case 'smartSpeedIntrooutroMax':
+				case 'smartSpeedSkipIntroButton':
+				case 'smartSpeedSkipSponsorButton':
+				case 'smartSpeedNoHeatmapFallbackMode':
+				case 'smartSpeedNoHeatmapFixedSpeed':
+				case 'smartSpeedWhitelistShorts':
+				case 'smartSpeedShortVideoThresholdSeconds':
+				case 'smartSpeedWhitelistLive':
+				case 'smartSpeedRulePriority':
+				case 'smartSpeedProfiles':
+					if (message.key === 'smart_speed') {
+						if (ImprovedTube.storage.smart_speed === true) {
+							if (ImprovedTube.smartSpeed?.init) { ImprovedTube.smartSpeed.init(); }
+							else if (ImprovedTube.heatmap?.init) { ImprovedTube.heatmap.init(); }
+						} else if (ImprovedTube.storage.smart_speed === false) {
+							if (ImprovedTube.smartSpeed?._teardown) { ImprovedTube.smartSpeed._teardown(); }
+							else if (ImprovedTube.heatmap?.isEnabled !== undefined) { ImprovedTube.heatmap.isEnabled = false; }
+							const v = document.querySelector("video");
+							if (v) v.playbackRate = 1.0;
+						}
+					} else {
+						if (ImprovedTube.smartSpeed?.onStorageChanged) {
+							ImprovedTube.smartSpeed.onStorageChanged(message.key, message.value);
+						}
+					}
 					break
+
 				case 'returnYoutubeDislike':
 					if (ImprovedTube.storage.return_youtube_dislike === true) {
 						ImprovedTube.returnYoutubeDislike();
