@@ -1026,7 +1026,7 @@
     "message": "「すべて再生」ボタン"
   },
   "playbackSpeed": {
-    "message": "再生速度の上下切り替え"
+    "message": "再生速度"
   },
   "playbackSpeedHotkey": {
     "message": "再生速度の一発切り替え"
@@ -1571,6 +1571,12 @@
   "playbackSpeedButton": {
     "message": "再生速度変更ボタン"
   },
+  "preferredSpeed": {
+    "message": "カスタム再生速度"
+  },
+  "playbackSpeedStep": {
+    "message": "速度変更の増減幅"
+  },
   "fullscreenReturn": {
     "message": "フルスクリーン解除ボタン"
   },
@@ -1612,9 +1618,6 @@
   },
   "muteThumbnailPreviews": {
     "message": "サムネイルプレビューを消音"
-  },
-  "displayDayOfTheWeak": {
-    "message": "曜日を表示"
   },
   "playlistQuality": {
     "message": "プレイリスト再生時の画質"

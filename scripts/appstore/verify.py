@@ -131,6 +131,24 @@ def verify_no_symlinks(root: Path) -> None:
         )
 
 
+def verify_html_references(root: Path) -> None:
+    """Every local src/href in shipped HTML must resolve to a packaged file."""
+    missing = []
+    for page in sorted(root.rglob("*.html")):
+        if "node_modules" in page.parts:
+            continue
+        text = page.read_text(encoding="utf-8", errors="replace")
+        for reference in re.findall(r"""(?:src|href)\s*=\s*["']([^"'#?]+)""", text):
+            if re.match(r"^(?:[a-z][a-z0-9+.-]*:|//|/)", reference, re.IGNORECASE):
+                continue
+            if not (page.parent / reference).resolve().is_file():
+                missing.append(f"{page.relative_to(root)} -> {reference}")
+    if missing:
+        raise VerificationError(
+            "shipped HTML references missing files:\n  " + "\n  ".join(missing)
+        )
+
+
 def verify_release_layout(root: Path) -> None:
     allowed = {"_locales", "background.js", "js&css", "manifest.json", "menu"}
     actual = {path.name for path in root.iterdir()}
@@ -228,12 +246,14 @@ def main() -> int:
         verify_manifest(ROOT / "manifest.json", policy, safari=False)
         verify_locales(ROOT)
         verify_no_custom_encryption(ROOT)
+        verify_html_references(ROOT / "menu")
         if arguments.extension_root:
             verify_no_symlinks(arguments.extension_root)
             verify_release_layout(arguments.extension_root)
             verify_manifest(arguments.extension_root / "manifest.json", policy, safari=True)
             verify_locales(arguments.extension_root)
             verify_no_custom_encryption(arguments.extension_root)
+            verify_html_references(arguments.extension_root)
         if arguments.project_root:
             verify_no_symlinks(arguments.project_root)
             verify_generated_project(arguments.project_root, policy)

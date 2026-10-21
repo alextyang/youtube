@@ -22,7 +22,11 @@ WORK_DIRECTORY=$(mktemp -d "${TMPDIR:-/tmp}/improvedtube-appstore.XXXXXX")
 trap 'rm -rf "$WORK_DIRECTORY"' EXIT
 
 mkdir "$WORK_DIRECTORY/source"
-git -C "$REPO_ROOT" archive HEAD | tar -x -C "$WORK_DIRECTORY/source"
+# In a monorepo, archive only this project's subtree (run from the top level so
+# git does not further restrict the archive to the current directory).
+GIT_TOPLEVEL=$(git -C "$REPO_ROOT" rev-parse --show-toplevel)
+GIT_PREFIX=$(git -C "$REPO_ROOT" rev-parse --show-prefix)
+git -C "$GIT_TOPLEVEL" archive "HEAD:${GIT_PREFIX}" | tar -x -C "$WORK_DIRECTORY/source"
 (
   cd "$WORK_DIRECTORY/source"
   python3 build/build.py -safari
