@@ -261,6 +261,12 @@ extension.skeleton.main.layers.section.appearance.on.click.player = {
 					text: 'hideProgressBarPreview',
 					storage: 'player_hide_progress_preview',
 				},
+				player_watched_segments: {
+					component: 'switch',
+					text: 'showWatchedSectionsOnSeekBar',
+					storage: 'player_watched_segments',
+					tags: 'progress,seek,bar,history,watched',
+				},
 				player_hide_controls_options: {
 					component: "button",
 					text: "hidePlayerControlsBarButtons",
@@ -631,6 +637,10 @@ extension.skeleton.main.layers.section.appearance.on.click.details = {
 			cc_indicator: {
 				component: "switch",
 				text: "ccIndicator"
+			},
+			hdr_badge: {
+				component: "switch",
+				text: "hdrBadge"
 			}
 			}
 		}
@@ -985,6 +995,11 @@ extension.skeleton.main.layers.section.appearance.on.click.comments = {
 			hide_author_avatars: {
 				component: "switch",
 				text: 'hide_author_avatars'
+			},
+			hide_comment_images: {
+				component: "switch",
+				text: 'hideCommentImages',
+				tags: "hide,remove,gif"
 			},
 			hide_comments_count: {
 				component: "switch",
