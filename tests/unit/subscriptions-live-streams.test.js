@@ -44,4 +44,9 @@ describe('Subscription live stream hiding (#1584)', () => {
 			'html[it-pathname=\'/feed/subscriptions\'][it-remove-subscriptions-live-streams="true"] yt-lockup-view-model:has(badge-shape.yt-badge-shape--live-now)'
 		);
 	});
+	test('supports the current camelCase LIVE badge on rich and lockup cards', () => {
+		expect(generalCssContent).toContain('ytd-rich-item-renderer:has(.ytBadgeShapeThumbnailLive)');
+		expect(generalCssContent).toContain('yt-lockup-view-model:has(.ytBadgeShapeThumbnailLive)');
+	});
+
 });

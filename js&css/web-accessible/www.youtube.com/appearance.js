@@ -1450,3 +1450,15 @@ ImprovedTube.ccIndicator = function () {
 	setTimeout(run, 1000);
 })();
 };
+
+(function () {
+	let previousScroll = window.scrollY;
+	window.addEventListener('scroll', function () {
+		const currentScroll = window.scrollY;
+		if (ImprovedTube.storage.header_transparent_alternative === true) {
+			if (currentScroll > previousScroll) document.documentElement.setAttribute('data-scroll-direction', 'down');
+			else document.documentElement.removeAttribute('data-scroll-direction');
+		}
+		previousScroll = currentScroll;
+	}, {passive: true});
+})();

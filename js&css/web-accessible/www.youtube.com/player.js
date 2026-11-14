@@ -3382,7 +3382,7 @@ ImprovedTube.shortsAutoScroll = function () {
             ImprovedTube.shortsAutoScrollInterval = setInterval(() => {
                 if (!location.pathname.startsWith('/shorts/')) return;
 
-                const activeRenderer = document.querySelector('ytd-reel-video-renderer[is-active]');
+				const activeRenderer = ImprovedTube.elements.shorts_player?.closest('ytd-reel-video-renderer, ytd-reel-video-renderer-cow') || document.querySelector('ytd-reel-video-renderer[is-active], ytd-reel-video-renderer-cow[is-active]');
                 const video = activeRenderer ? activeRenderer.querySelector('video') : null;
 
                 if (video && !video.dataset.itShortsScrollAttached) {
@@ -3392,29 +3392,33 @@ ImprovedTube.shortsAutoScroll = function () {
                         if (!ImprovedTube.storage.shorts_auto_scroll) {
                             video.removeEventListener('timeupdate', timeupdateHandler);
                             delete video.dataset.itShortsScrollAttached;
+                            delete video.dataset.itShortsScrollRequested;
                             return;
                         }
                         if (this.paused) return;
 
                         // Get fresh references to avoid stale DOM elements
-                        const currentActiveRenderer = document.querySelector('ytd-reel-video-renderer[is-active]');
+						const currentActiveRenderer = ImprovedTube.elements.shorts_player?.closest('ytd-reel-video-renderer, ytd-reel-video-renderer-cow') || document.querySelector('ytd-reel-video-renderer[is-active], ytd-reel-video-renderer-cow[is-active]');
                         const isVideoStillActive = currentActiveRenderer && currentActiveRenderer.contains(this);
 
                         if (!isVideoStillActive) {
                             this.removeEventListener('timeupdate', timeupdateHandler);
                             delete this.dataset.itShortsScrollAttached;
+                            delete this.dataset.itShortsScrollRequested;
                             return;
                         }
 
-                        if (this.duration && this.currentTime >= this.duration - 0.25) {
+                        // Native timeupdate events can be more than 250 ms apart.
+                        if (this.duration && this.currentTime >= this.duration - 0.5) {
                             try {
                                 // Find next button with fresh reference
                                 const nextButton = currentActiveRenderer.querySelector('#navigation-button-down button')
                                                 || document.querySelector('#navigation-button-down button')
                                                 || document.querySelector('button[aria-label="Next video"]');
 
-                                if (nextButton) {
-                                    this.pause();
+                                if (nextButton && !this.dataset.itShortsScrollRequested) {
+                                    this.dataset.itShortsScrollRequested = 'true';
+                                    // Let native navigation manage playback during the transition.
                                     nextButton.click();
                                 }
                             } catch (error) {
@@ -3422,7 +3426,10 @@ ImprovedTube.shortsAutoScroll = function () {
                                 // Remove listener on error to prevent breaking
                                 this.removeEventListener('timeupdate', timeupdateHandler);
                                 delete this.dataset.itShortsScrollAttached;
+                                delete this.dataset.itShortsScrollRequested;
                             }
+                        } else {
+                            delete this.dataset.itShortsScrollRequested;
                         }
                     };
 
@@ -3439,6 +3446,7 @@ ImprovedTube.shortsAutoScroll = function () {
         // Clean up all existing event listeners when disabled
         document.querySelectorAll('video[data-it-shorts-scroll-attached]').forEach(video => {
             delete video.dataset.itShortsScrollAttached;
+            delete video.dataset.itShortsScrollRequested;
         });
     }
 };

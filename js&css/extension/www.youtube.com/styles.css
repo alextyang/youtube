@@ -55,13 +55,21 @@ html[it-player-crop-chapter-titles=false] .ytp-chapter-title {
 /*------------------------------------------------------------------------------
 4.2 BANNER ADS
 ------------------------------------------------------------------------------*/
+html[it-hide-banner-ads=true] #related #player-ads,
 html[it-hide_banner_ads=true] #related #player-ads,
+html[it-hide-banner-ads=true] #masthead-ad,
 html[it-hide_banner_ads=true] #masthead-ad,
+html[it-hide-banner-ads=true] *[target-id*='engagement-panel-ads'],
 html[it-hide_banner_ads=true] *[target-id*='engagement-panel-ads'],
+html[it-hide-banner-ads=true] .ytd-ad-slot-renderer,
 html[it-hide_banner_ads=true] .ytd-ad-slot-renderer,
+html[it-hide-banner-ads=true] yt-mealbar-promo-renderer,
 html[it-hide_banner_ads=true] yt-mealbar-promo-renderer,
+html[it-hide-banner-ads=true] #player .ytp-ad-image-overlay,
 html[it-hide_banner_ads=true] #player .ytp-ad-image-overlay,
+html[it-hide-banner-ads=true] #player .video-ads .ytp-ad-player-overlay-flyout-cta,
 html[it-hide_banner_ads=true] #player .video-ads .ytp-ad-player-overlay-flyout-cta,
+html[it-hide-banner-ads=true] #player .ytp-ad-module .ytp-ad-player-overlay-flyout-cta,
 html[it-hide_banner_ads=true] #player .ytp-ad-module .ytp-ad-player-overlay-flyout-cta {
 	display: none !important;
 }
@@ -2322,18 +2330,23 @@ html[it-thumbnail-size="xx-small"] ytd-playlist-video-renderer ytd-thumbnail {
 }
 
 /* Thumbnail sizes: Video Player Sidebar (Related Videos) */
+html[it-thumbnail-size="large"] #related .ytLockupViewModelContentImage,
 html[it-thumbnail-size="large"] ytd-compact-video-renderer ytd-thumbnail {
     width: 200px !important;
 }
+html[it-thumbnail-size="medium"] #related .ytLockupViewModelContentImage,
 html[it-thumbnail-size="medium"] ytd-compact-video-renderer ytd-thumbnail {
     width: 160px !important;
 }
+html[it-thumbnail-size="small"] #related .ytLockupViewModelContentImage,
 html[it-thumbnail-size="small"] ytd-compact-video-renderer ytd-thumbnail {
     width: 120px !important;
 }
+html[it-thumbnail-size="x-small"] #related .ytLockupViewModelContentImage,
 html[it-thumbnail-size="x-small"] ytd-compact-video-renderer ytd-thumbnail {
     width: 90px !important;
 }
+html[it-thumbnail-size="xx-small"] #related .ytLockupViewModelContentImage,
 html[it-thumbnail-size="xx-small"] ytd-compact-video-renderer ytd-thumbnail {
     width: 70px !important;
 }
@@ -2408,4 +2421,9 @@ html[it-theme=dark]:not([it-schedule=system_peference_dark]):not([it-schedule=sy
 html[it-theme=dark][data-system-color-scheme=dark][it-schedule=system_peference_dark],
 html[it-theme=dark][data-system-color-scheme=light][it-schedule=system_peference_light] {
 .it-add-channel-to-blocklist { 	--yt-spec-text-secondary: #aaa !important; }
+}
+
+/* Current horizontal recommendation lockups use a flex basis for the image. */
+html:is([it-thumbnail-size="large"], [it-thumbnail-size="medium"], [it-thumbnail-size="small"], [it-thumbnail-size="x-small"], [it-thumbnail-size="xx-small"]) #related .ytLockupViewModelContentImage {
+	flex: none !important;
 }

@@ -255,17 +255,25 @@ ImprovedTube.playlistReverse = function () {
 4.5.3 REPEAT
 ------------------------------------------------------------------------------*/
 ImprovedTube.playlistRepeat = function () {
-	if ( ImprovedTube.storage.playlist_repeat === true ) {
-	    setTimeout(function () {
-			var option = ImprovedTube.storage.playlist_repeat,
-				button = document.querySelector("#button.ytd-playlist-loop-button-renderer") || document.querySelector("ytd-playlist-loop-button-renderer button") || document.querySelector("ytd-playlist-loop-button-renderer");
-			if (button && (option === true && button.querySelector("path").attributes.d.textContent.split(" ")[0].startsWith('M21')
-			) && button.querySelector("#tooltip")?.textContent !== 'Loop video'
-	  && button.firstElementChild?.firstElementChild?.attributes[2]?.textContent !== 'Loop video'
-	  && button.querySelector("#tooltip")?.textContent !== 'Turn off loop'
-	  && button.firstElementChild?.firstElementChild?.attributes[2]?.textContent !== 'Turn off loop'
-			)
-			{ button.click(); }
+	if (this.storage.playlist_repeat === true) {
+		setTimeout(function () {
+			const button = document.querySelector('ytd-playlist-loop-button-renderer button')
+				|| document.querySelector('#button.ytd-playlist-loop-button-renderer')
+				|| document.querySelector('ytd-playlist-loop-button-renderer');
+			if (!button || ImprovedTube.storage.playlist_repeat !== true) return;
+			const pressed = button.getAttribute('aria-pressed');
+			const label = button.getAttribute('aria-label');
+			let disabled = pressed === 'false' || label === 'Loop playlist';
+			if (pressed === 'true' || label === 'Loop video' || label === 'Turn off loop') disabled = false;
+			else if (pressed !== 'false' && label !== 'Loop playlist') {
+				const path = button.querySelector('path')?.getAttribute('d');
+				disabled = !!path?.split(' ')[0].startsWith('M21')
+					&& button.querySelector('#tooltip')?.textContent !== 'Loop video'
+					&& button.firstElementChild?.firstElementChild?.attributes[2]?.textContent !== 'Loop video'
+					&& button.querySelector('#tooltip')?.textContent !== 'Turn off loop'
+					&& button.firstElementChild?.firstElementChild?.attributes[2]?.textContent !== 'Turn off loop';
+			}
+			if (disabled) button.click();
 		}, 10000);
 	}
 };
@@ -276,14 +284,15 @@ ImprovedTube.playlistRepeat = function () {
 4.5.4 SHUFFLE
 ------------------------------------------------------------------------------*/
 ImprovedTube.playlistShuffle = function () {
-	if ( ImprovedTube.storage.playlist_shuffle === true ) {
+	if (this.storage.playlist_shuffle === true) {
 		setTimeout(function () {
-			var button = ImprovedTube.elements.playlist.shuffle_button,
-				option = ImprovedTube.storage.playlist_shuffle;
-			button = document.querySelector('#playlist-actions #playlist-action-menu ytd-toggle-button-renderer');
-			if (button && (option === true && button.querySelector("path").attributes.d.textContent.split(" ")[0].startsWith('M18.1')
-			) 	)
-			{ button.click(); }
+			const renderer = ImprovedTube.elements.playlist.shuffle_button;
+			const legacy = document.querySelector('#playlist-actions #playlist-action-menu ytd-toggle-button-renderer');
+			const button = renderer?.querySelector('button') || legacy?.querySelector('button') || legacy || renderer;
+			if (!button || ImprovedTube.storage.playlist_shuffle !== true) return;
+			const pressed = button.getAttribute('aria-pressed');
+			const path = pressed !== 'true' && pressed !== 'false' ? button.querySelector('path')?.getAttribute('d') : null;
+			if (pressed === 'false' || (pressed !== 'true' && path?.split(' ')[0].startsWith('M18.1'))) button.click();
 		}, 10000);
 	}
 };
@@ -438,9 +447,10 @@ ImprovedTube.playlistPopup = function () {
 			playlistIDMini = this.elements.player?.getPlaylistId?.();
 
 		if (!document.contains(this.elements.buttons['it-popup-playlist-button-playlist'])) {
-			const playlistShareButton = document.body.querySelector('ytd-app>div#content>ytd-page-manager>ytd-browse>ytd-playlist-header-renderer ytd-button-renderer.ytd-playlist-header-renderer:has(button[title])');
+			const playlistShareButton = document.body.querySelector('ytd-playlist-header-renderer button[aria-label="Share"], ytd-page-header-renderer button[aria-label="Share"]')
+				|| document.body.querySelector('ytd-app>div#content>ytd-page-manager>ytd-browse>ytd-playlist-header-renderer ytd-button-renderer.ytd-playlist-header-renderer:has(button[title])');
 			if (playlistShareButton == null) this.elements.buttons['it-popup-playlist-button-playlist'] = null;
-			else playlistShareButton.insertAdjacentElement('afterend', this.elements.buttons['it-popup-playlist-button-playlist'] = this.playlistPopupCreateButton(playlistID));
+			else (playlistShareButton.closest('ytd-button-renderer, button-view-model') || playlistShareButton).insertAdjacentElement('afterend', this.elements.buttons['it-popup-playlist-button-playlist'] = this.playlistPopupCreateButton(playlistID));
 		} else if (playlistID != null && this.elements.buttons['it-popup-playlist-button-playlist'].dataset.list !== playlistID) this.elements.buttons['it-popup-playlist-button-playlist'].dataset.list = playlistID;
 
 		if (!document.contains(this.elements.buttons['it-popup-playlist-button-mini'])) {

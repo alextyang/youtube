@@ -151,6 +151,7 @@ html[it-hide-shorts-remixing='true'] #related ytd-reel-shelf-renderer,
 /*--------------------------------------------------------------
 # HIDE THUMBNAILS
 --------------------------------------------------------------*/
+html[it-thumbnails-hide='true'] #related .ytLockupViewModelContentImage,
 html[it-thumbnails-hide='true'] ytd-watch-next-secondary-results-renderer ytd-thumbnail,
 html[it-thumbnails-hide='true'] ytd-watch-next-secondary-results-renderer ytd-playlist-thumbnail,
 /*update Aug 22th 2025 by @JadonDn:*/ html[it-thumbnails-hide='true'] ytd-watch-next-secondary-results-renderer .yt-lockup-view-model-wiz__content-image,
@@ -159,6 +160,13 @@ html[it-thumbnails-hide='true'] ytd-watch-next-secondary-results-renderer ytd-pl
 --------------------------------------------------------------*/
 html[it-livechat='hidden'] ytd-live-chat-frame#chat {
 	  display: none !important;
+}
+
+/* Keep title-only recommendations separated after their images collapse. */
+html[it-thumbnails-hide='true'] #related yt-lockup-view-model,
+html[it-thumbnails-hide='true'] #related ytd-compact-video-renderer,
+html[it-thumbnails-hide='true'] #related ytd-compact-playlist-renderer {
+	margin-bottom: 8px !important;
 }
 
 /* #3664 - In theatre mode YouTube reparents the live chat into
@@ -354,6 +362,7 @@ html[data-page-type=video][it-sidebar-left='true'] #head>#upnext {
 	order: 5 !important;
 }
 
+html[data-page-type=video][it-sidebar-left='true'] #columns>#secondary #related,
 html[data-page-type=video][it-sidebar-left='true'] #columns>#secondary>#related {margin-left: calc(0.5vw + 4px); margin-right:1vw !important;}
 
 /*--------------------------------------------------------------
@@ -362,9 +371,24 @@ html[data-page-type=video][it-sidebar-left='true'] #columns>#secondary>#related 
 /* Move thumbnails to the right for video suggestions */
 html[it-thumbnails-right='true'] #related ytd-watch-next-secondary-results-renderer ytd-thumbnail,
 html[it-thumbnails-right='true'] #related .modern-collection-parent,
+html[it-thumbnails-right='true'] #related .ytLockupViewModelContentImage,
 html[it-thumbnails-right='true'] #related ytd-watch-next-secondary-results-renderer ytd-playlist-thumbnail,
 html[it-thumbnails-right='true'] #related ytd-compact-playlist-renderer ytd-thumbnail {
 	order: 5 !important;
+}
+
+/* Mirror YouTube's image/metadata gap without changing either column's size. */
+html[it-thumbnails-right='true'] #related .ytLockupViewModelHorizontal .ytLockupViewModelContentImage {
+	padding-left: 16px !important;
+	padding-right: 0 !important;
+}
+
+html[it-thumbnails-right='true'] #related .ytLockupViewModelHorizontal.ytLockupViewModelCompact .ytLockupViewModelContentImage {
+	padding-left: 8px !important;
+}
+
+html[it-thumbnails-right='true'] #related .ytLockupViewModelHorizontal.ytLockupViewModelCompact.ytLockupViewModelUpdatedCompactPadding .ytLockupViewModelContentImage {
+	padding-left: 12px !important;
 }
 
 /*--------------------------------------------------------------

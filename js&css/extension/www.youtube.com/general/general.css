@@ -132,6 +132,7 @@ html[it-hide-animated-thumbnails='true'] #mouseover-overlay,
 html[it-hide-animated-thumbnails='true'] .mouseover-play,
 html[it-hide-animated-thumbnails='true'] .mouseover-img,
 html[it-hide-animated-thumbnails='true'] #preview>ytd-video-preview,
+html[it-hide-animated-thumbnails='true'] #video-preview > ytd-video-preview-loader,
 /*--------------------------------------------------------------
 # HIDE BUTTONS ON THUMBNAILS
 --------------------------------------------------------------*/
@@ -177,7 +178,9 @@ html[it-pathname='/'][it-hide-sponsored-videos-home="true"] ytd-rich-item-render
 /* Only apply embedded video UI hiding on youtube.com domain, not on third-party sites like Reddit */
 html[it-embeddedHidePauseOverlay='true'][it-pathname^="/embed"] .ytp-pause-overlay,
 html[it-embeddedHideYoutubeLogo='true'][it-pathname^="/embed"] a.ytp-youtube-button svg path,
+html[it-embeddedHideYoutubeLogo='true'][it-pathname^="/embed"] a[aria-label="Watch on YouTube"],
 html[it-embeddedHideShare='true'][it-pathname^="/embed"] .ytp-share-button-visible:has(.ytp-share-icon),
+html[it-embeddedHideShare='true'][it-pathname^="/embed"] :is(button, a)[aria-label="Share"],
 /*--------------------------------------------------------------
 # REMOVE MEMBER ONLY VIDEOS
 --------------------------------------------------------------*/
@@ -190,6 +193,7 @@ html[it-remove-member-only='true'] yt-lockup-view-model:has(.yt-badge-shape--com
 /*--------------------------------------------------------------
 # REMOVE CONTEXT BUTTONS ON SHORTS
 --------------------------------------------------------------*/
+html[it-remove-context-buttons='true'] yt-shorts-suggested-action-view-model.ytShortsSuggestedActionViewModelStaticHost,
 html[it-remove-context-buttons='true'] yt-shorts-suggested-action-view-model.YtShortsSuggestedActionViewModelStaticHost,
 /*--------------------------------------------------------------
 # REMOVE HOMEPAGE SHORTS
@@ -207,6 +211,8 @@ html[it-pathname='/feed/history'][it-remove-history-shorts="true"] ytd-video-ren
 /*--------------------------------------------------------------
 # REMOVE SUBSCRIPTION LIVE STREAMS
 --------------------------------------------------------------*/
+html[it-pathname='/feed/subscriptions'][it-remove-subscriptions-live-streams="true"] ytd-rich-item-renderer:has(.ytBadgeShapeThumbnailLive),
+html[it-pathname='/feed/subscriptions'][it-remove-subscriptions-live-streams="true"] yt-lockup-view-model:has(.ytBadgeShapeThumbnailLive),
 html[it-pathname='/feed/subscriptions'][it-remove-subscriptions-live-streams="true"] ytd-rich-item-renderer:has(ytd-thumbnail-overlay-time-status-renderer[overlay-style="LIVE"]),
 html[it-pathname='/feed/subscriptions'][it-remove-subscriptions-live-streams="true"] ytd-rich-item-renderer:has(ytd-thumbnail-overlay-time-status-renderer[overlay-style="UPCOMING"]),
 html[it-pathname='/feed/subscriptions'][it-remove-subscriptions-live-streams="true"] ytd-rich-item-renderer:has(.badge-style-type-live-now),
@@ -222,15 +228,17 @@ html[it-pathname='/feed/subscriptions'][it-remove-subscriptions-live-streams="tr
 /*--------------------------------------------------------------
 # REMOVE PLAYABLES
 --------------------------------------------------------------*/
+html[it-pathname='/playables'][it-remove-playables="true"] ytd-mini-game-card-view-model,
 html[it-pathname='/'][it-remove-playables="true"] ytd-rich-section-renderer:has(ytd-mini-game-card-view-model) {
 	display: none !important;
 }
 /*--------------------------------------------------------------
 # REMOVE TOP LIVE GAMES
 --------------------------------------------------------------*/
+html[it-pathname='/gaming'][it-remove-top-live-games="true"] ytd-horizontal-card-list-renderer:has(ytd-rich-list-header-renderer a[href="/gaming/games"]),
 html[it-pathname='/'][it-remove-top-live-games="true"] ytd-rich-section-renderer:has(ytd-rich-shelf-renderer[is-gaming]),
 html[it-pathname='/'][it-remove-top-live-games="true"] ytd-rich-section-renderer:has([aria-label*="live game" i]),
-html[it-pathname='/'][it-remove-top-live-games="true"] ytd-rich-section-renderer:has(ytd-rich-shelf-renderer #title:has(a[href*="gaming"])),
+html[it-pathname='/'][it-remove-top-live-games="true"] ytd-rich-section-renderer:has(ytd-rich-shelf-renderer #title a[href*="gaming"]),
 html[it-pathname='/'][it-remove-top-live-games="true"] ytd-rich-section-renderer:has(ytd-rich-shelf-renderer #title yt-formatted-string.ytd-rich-shelf-renderer:is([title="Top live games"])) {
 	display: none !important;
 }

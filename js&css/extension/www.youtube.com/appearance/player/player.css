@@ -781,6 +781,7 @@ ALWAYS SHOW CONTROL BUTTONS
 html[it-shorts-always-show-fullscreen=true] ytd-shorts-player-controls:not([is-ads-overlay]) #fullscreen-button-shape.ytd-shorts-player-controls {
 	display: flex !important;
 }
+html[it-shorts-always-show-captions=true] ytd-shorts-player-controls:not([is-ads-overlay]) #closed-captioning-button-container,
 html[it-shorts-always-show-captions=true] ytd-shorts-player-controls:not([is-ads-overlay]) #closed-captioning-button-container.ytd-shorts-player-controls {
 	display: flex !important;
 }

@@ -20,6 +20,7 @@ html[it-youtubeDetailButtons='transparent_background'] #subscribe-button button,
 html[it-youtubeDetailButtons='transparent_background'] #menu button {background-color:rgba(0, 0, 0, 0.2) !important;}
 html[it-youtubeDetailButtons='transparent_background'] #subscribe-button button {color:#111 !important;}
 	/*------SHOW my DISLIKE in RED------*/
+html[it-red-dislike-button='true'] dislike-button-view-model button[aria-pressed='true'] svg,
 html[it-red-dislike-button='true'] #top-level-buttons-computed #segmented-dislike-button ytd-toggle-button-renderer *[aria-pressed='true'] yt-icon {color: #f02200 !important;}
 	/*------SUBSCRIBE BUTTON------*/
 html[it-subscribe='grey'] #subscribe-button button {background-color: #DDD !important; color:#111 !important;}
@@ -33,6 +34,7 @@ html[it-join='hidden'] #sponsor-button,
 html[it-join='hidden'] ytd-sponsorships-offer-module-renderer,
 html[it-purchase='remove_label'] #purchase-button button .yt-spec-button-shape-next__button-text-content,
 html[it-purchase='hidden'] #purchase-button,
+html[it-purchase='hidden'] ytd-tvfilm-offer-module-renderer ytd-button-renderer,
 html[it-youtubeDetailButtons='remove_labels'] #menu button div:nth-child(2),
 html[it-youtubeDetailButtons='remove_labels'] #menu button .yt-spec-button-shape-next__button-text-content,
 html[it-youtubeDetailButtons='remove_labels'] #subscribe-button .yt-spec-button-shape-next__button-text-content,
@@ -248,4 +250,9 @@ html[it-disable-likes-animation='true'] yt-animated-rolling-number * {
 html[it-disable-likes-animation='true'] #top-level-buttons-computed #segmented-like-button ytd-toggle-button-renderer span {
 	font-variant-numeric: tabular-nums;
 	vertical-align: baseline;
+}
+
+html[it-hide-download-button="hidden"] ytd-menu-service-item-download-renderer,
+html[it-hide-download-button="true"] ytd-menu-service-item-download-renderer {
+	display: none !important;
 }

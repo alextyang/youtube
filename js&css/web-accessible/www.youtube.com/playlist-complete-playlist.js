@@ -371,7 +371,7 @@ ImprovedTube.playlistEnsureQuickButtons = function (renderer) {
     const menu = renderer.querySelector('#menu');
     if (!menu) return;
 
-    const dropdownTrigger = menu.querySelector('.dropdown-trigger, #button');
+    const dropdownTrigger = menu.querySelector('button') || menu.querySelector('.dropdown-trigger, #button');
     if (!dropdownTrigger) return;
 
     // Create icon button for delete
@@ -484,7 +484,7 @@ async function clickMenuRemove(renderer) {
                 try {
                     const data = el.data || el.__data || {};
                     const json = JSON.stringify(data);
-                    return /ACTION_REMOVE_VIDEO_FROM/.test(json);
+                    return el.getClientRects().length > 0 && /ACTION_REMOVE_VIDEO_FROM/.test(json);
                 } catch (e) { return false; }
             }) || null;
         }

@@ -26,7 +26,7 @@ ImprovedTube.channelDefaultTab = function (a) {
 
 function itIsShorts(node) {
 	if (!node) return false;
-	const a = node.querySelector('a#thumbnail, a.yt-simple-endpoint[href]');
+	const a = node.querySelector('a[href^="/shorts/"], a[href*="/watch?"]') || node.querySelector('a#thumbnail, a.yt-simple-endpoint[href]');
 	const href = (a && a.getAttribute('href')) || '';
 	if (href.startsWith('/shorts/') || /\/shorts\//.test(href)) return true;
 
@@ -51,15 +51,17 @@ function itIsShorts(node) {
 	  'ytd-rich-item-renderer',
 	  'ytd-grid-video-renderer',
 	  'ytd-video-renderer',
-	  'ytd-compact-video-renderer'
+	  'ytd-compact-video-renderer',
+	  'yt-lockup-view-model'
 	];
-	const nodes = document.querySelectorAll(selectors.join(','));
+	const nodes = (document.querySelector('ytd-browse') || document).querySelectorAll(selectors.join(','));
 	const ids = [];
+	const seen = new Set();
 
 	for (const node of nodes) {
 	  if (excludeShorts && itIsShorts(node)) continue;
 
-	  const a = node.querySelector('a#thumbnail, a.yt-simple-endpoint[href*="/watch"]');
+	  const a = node.querySelector('a[href*="/watch?"]') || node.querySelector('a#thumbnail, a.yt-simple-endpoint[href*="/watch"]');
 	  if (!a) continue;
 
 	  let id = '';
@@ -72,7 +74,10 @@ function itIsShorts(node) {
 		id = (m && m[1]) || '';
 	  }
 
-	  if (id) ids.push(id);
+	  if (id && !seen.has(id)) {
+			ids.push(id);
+			seen.add(id);
+	  }
 	  if (ids.length >= limit) break;
 	}
 	return ids;
@@ -84,26 +89,33 @@ function itIsShorts(node) {
 ImprovedTube.channelPlayAllButton = function () {
 	if (ImprovedTube.regex.channel.test(location.pathname)) {
 		if (this.storage.channel_play_all_button) {
-			const container = document.querySelector('ytd-channel-sub-menu-renderer #primary-items')
+			const container = document.querySelector('ytd-browse chip-bar-view-model')
+				|| document.querySelector('ytd-channel-sub-menu-renderer #primary-items')
 				|| document.querySelector('ytd-two-column-browse-results-renderer #chips-content');
 			const playlistUrl = document.querySelector('ytd-app')?.__data?.data?.response?.metadata?.channelMetadataRenderer?.externalId?.substring(2);
 			const existingPlayAllButton = document.querySelector('.it-play-all-button');
 
-			//if (!container) return; // we only add button on /videos page
+			if (!container) return;
 			if (!playlistUrl) {
 				console.error('channelPlayAllButton: Cant find Channel playlist');
 				return;
 			}
-			if (existingPlayAllButton) return; // prevent add duplicate button
+			const uploadsUrl = excludeShorts => '/playlist?list=' + (excludeShorts ? 'UULF' : 'UU') + playlistUrl;
+			const excludeShorts = this.storage.exclude_shorts_in_play_all !== false;
+			if (existingPlayAllButton) {
+				existingPlayAllButton.href = uploadsUrl(excludeShorts);
+				return; // prevent add duplicate button
+			}
 			const button = this.createIconButton({
 				type: 'playAll',
 				className: 'it-play-all-button',
 				text: 'Play all',
-				href: '/playlist?list=UU' + playlistUrl
+				href: uploadsUrl(excludeShorts)
 			});
 			container.appendChild(button);
 
 			button.addEventListener('click', (e) => {
+				button.href = uploadsUrl(this.storage.exclude_shorts_in_play_all !== false);
 				const isMetaOpen = e.metaKey || e.ctrlKey || e.button === 1;
 				if (isMetaOpen) return;
 				const defaultFlag = true;
@@ -119,7 +131,7 @@ ImprovedTube.channelPlayAllButton = function () {
 
 				if (this?.storage && Object.prototype.hasOwnProperty.call(this.storage, 'exclude_shorts_in_play_all')) {
 					go(!!this.storage.exclude_shorts_in_play_all);
-				  } else if (chrome?.storage?.sync) {
+				  } else if (window.chrome?.storage?.sync) {
 					e.preventDefault();
 					chrome.storage.sync.get({ exclude_shorts_in_play_all: defaultFlag }, (cfg) => {
 					  if (cfg.exclude_shorts_in_play_all) {
@@ -129,7 +141,7 @@ ImprovedTube.channelPlayAllButton = function () {
 						  return;
 						}
 					  }
-					  location.href = button.href;
+					  location.href = uploadsUrl(!!cfg.exclude_shorts_in_play_all);
 					});
 				} else {
 				go(defaultFlag);
@@ -177,6 +189,7 @@ ImprovedTube.channelCompactTheme = function () {
 		for (let i = 0; i <= 2; i++) {
 			const parent = document.querySelector(`#sections > ytd-guide-section-renderer:nth-child(${i + 2}) > h3`);
 			const sub = document.querySelector(`#sections ytd-guide-section-renderer:nth-child(${i + 2}) #items`);
+			if (!parent || !sub) continue;
 			compact.parents[i] = parent;
 			compact.subs[i] = sub;
 			let isCompact = localStorage.getItem(`ImprovedTube-compact-${i}`) === "true";
@@ -193,7 +206,7 @@ ImprovedTube.channelCompactTheme = function () {
 				localStorage.setItem(`ImprovedTube-compact-${i}`, isCompact)
 			}
 
-			compact.eventHandlerFns.push(eventHandlerFn)
+			compact.eventHandlerFns[i] = eventHandlerFn
 			parent.addEventListener("click", eventHandlerFn)
 		}
 		removeStyles();
@@ -203,6 +216,7 @@ ImprovedTube.channelCompactTheme = function () {
 		for (let i = 0; i <= 2; i++) {
 			const parent = compact.parents[i]
 			const sub = compact.subs[i]
+			if (!parent || !sub) continue;
 			parent.removeEventListener("click", compact.eventHandlerFns[i]);
 			sub.style.display = "";
 		}

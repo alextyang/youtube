@@ -97,8 +97,8 @@ extension.features.youtubeHomePage = function (anything) {
  */
 function subscriptionEntries() {
 	for (const section of document.querySelectorAll("ytd-guide-section-renderer")) {
-		const headerLink = section.querySelector('a[href="/feed/channels"]');
-		if (headerLink) { // Exists only in the subscriptions section
+		const headerLink = section.querySelector('#header-entry a[href="/feed/subscriptions"]') || section.querySelector('a[href="/feed/channels"]');
+		if (headerLink) { // Match the section header, not the main navigation link
 			const entries = Array.from(
 				section.querySelectorAll("ytd-guide-entry-renderer")
 			).filter(entry => entry.id !== "header-entry");
@@ -110,7 +110,7 @@ function subscriptionEntries() {
 
 extension.features.collapseOfSubscriptionSections = function (event) {
 	if (typeof event === "boolean") {
-		subs = subscriptionEntries()
+		const subs = subscriptionEntries()
 		if (subs instanceof Error) {
 			console.error(subs.message)
 			return
@@ -972,18 +972,25 @@ if (extension.storage.get('mute_thumbnail_previews') === true) {
 
 extension.features.openNewTab = function () {
 	if (extension.storage.get("open_new_tab") === true) {
-		window.onload = function () {
-			const searchButton = document.querySelector("button#search-icon-legacy");
-			const inputField = document.querySelector("input#search");
+		const bindSearch = function () {
+			const searchButton = document.querySelector('yt-searchbox button[aria-label="Search"]') || document.querySelector('button#search-icon-legacy');
+			// The current searchbox also contains a file-upload input before its text field.
+			const inputField = document.querySelector('yt-searchbox input:not([type="file"]):not([type="hidden"]), yt-searchbox textarea') || document.querySelector('input#search');
+			if (!searchButton || !inputField || inputField.dataset.itNewTabSearch) return;
+			inputField.dataset.itNewTabSearch = 'true';
 
-			searchButton.addEventListener("mousedown", (event) => {
+			searchButton.addEventListener('click', (event) => {
+				event.preventDefault();
+				event.stopImmediatePropagation();
 				performSearchNewTab(inputField.value);
-			});
-			inputField.addEventListener("keydown", function (event) {
-				if (event.key === "Enter") {
+			}, true);
+			inputField.addEventListener('keydown', function (event) {
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					event.stopImmediatePropagation();
 					performSearchNewTab(inputField.value);
 				}
-			});
+			}, true);
 
 			let searchedAlready = false;
 			inputField.addEventListener("focus", function () {
@@ -1015,7 +1022,10 @@ extension.features.openNewTab = function () {
 				const newTabURL = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
 				window.open(newTabURL, '_blank');
 			}
-		}
+		};
+		bindSearch();
+		window.addEventListener('load', bindSearch, {once: true});
+		window.addEventListener('yt-navigate-finish', bindSearch);
 	}
 }
 

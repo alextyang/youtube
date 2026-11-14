@@ -85,6 +85,7 @@ ImprovedTube.myColors = function () {
 				'--yt-frosted-glass-desktop:' + primary_color + 'cc !important;' +
 				'background-color: var(--yt-spec-base-background)!important;' +
 				'}' +
+				'html[it-theme=custom] ytd-watch-metadata h1 { color: ' + text_color + ' !important; }' +
 				'html[it-theme=custom] ytd-masthead, html[it-theme=custom] #masthead, html[it-theme=custom] ytd-app #masthead { background-color: ' + secondary_color + ' !important; }' +
 				'html[it-theme=custom] ytd-app, html[it-theme=custom] ytd-browse-view, html[it-theme=custom] ytd-watch-flexy, html[it-theme=custom] #page, html[it-theme=custom] #content { background-color: var(--yt-spec-base-background) !important; }';
 
