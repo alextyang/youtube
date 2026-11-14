@@ -743,7 +743,7 @@ extension.skeleton.main.layers.section.player.on.click = {
 															on: {
 																change: function() {
 																	let freshState = Object.assign({}, satus.storage.get('smart_speed_profiles'));
-																	freshState[key].max = Number(this.value);
+																	freshState[key].max = Number(this.input.value);
 																	satus.storage.set('smart_speed_profiles', freshState);
 																}
 															}
@@ -753,7 +753,7 @@ extension.skeleton.main.layers.section.player.on.click = {
 															on: {
 																change: function() {
 																	let freshState = Object.assign({}, satus.storage.get('smart_speed_profiles'));
-																	freshState[key].min = Number(this.value);
+																	freshState[key].min = Number(this.input.value);
 																	satus.storage.set('smart_speed_profiles', freshState);
 																}
 															}
@@ -763,7 +763,7 @@ extension.skeleton.main.layers.section.player.on.click = {
 															on: {
 																change: function() {
 																	let freshState = Object.assign({}, satus.storage.get('smart_speed_profiles'));
-																	freshState[key].sens = Number(this.value);
+																	freshState[key].sens = Number(this.input.value);
 																	satus.storage.set('smart_speed_profiles', freshState);
 																}
 															}

@@ -4050,14 +4050,15 @@ SMART SPEED ENGINE
         /** `ctxHint` = { playerResponse } — whatever the current session has
          *  handy, so we don't need to re-derive it from scratch every call. */
         resolve(ctxHint = {}) {
-            if (!this._dirty && this._cache) return this._cache;
-
-            const playerResponse = ctxHint.playerResponse || null;
+			const playerResponse = ctxHint.playerResponse || ImprovedTube.elements.player?.getPlayerResponse?.() || null;
             const ident = this.channelIdentity(playerResponse);
             const genre = playerResponse?.microformat?.playerMicroformatRenderer?.category
                 || document.querySelector('meta[itemprop="genre"]')?.content
                 || 'Unknown';
             const audioLang = this.audioLanguage(playerResponse);
+			const contextKey = JSON.stringify([ident, genre, audioLang]);
+			if (!this._dirty && this._cache && this._contextKey === contextKey) return this._cache;
+			this._contextKey = contextKey;
             const profiles = ImprovedTube.storage.smart_speed_profiles || {};
             const priorityOrder = (ImprovedTube.storage.smart_speed_rule_priority || 'channel,category,language').split(',').map(s => s.trim());
 
