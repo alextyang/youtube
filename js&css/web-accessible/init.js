@@ -191,6 +191,7 @@ ImprovedTube.init = function () {
 		try { if (ImprovedTube.videoFilters) ImprovedTube.videoFilters(); } catch (e) {}
 	});
 	this.pageType();
+	this.channelPlayAllButton();
 	this.playerOnPlay();
 	this.playerSDR();
 	this.shortcutsInit();
@@ -200,6 +201,7 @@ ImprovedTube.init = function () {
 	this.myColors();
 	this.YouTubeExperiments();
 	this.channelCompactTheme();
+	this.commentsSidebarSimple();
 	this.categoryRefreshButton();
 	if (ImprovedTube.elements.player && ImprovedTube.elements.player.setPlaybackRate) {
 		ImprovedTube.videoPageUpdate();
@@ -253,6 +255,7 @@ document.addEventListener('yt-navigate-finish', function () {
 	ImprovedTube.pageType();
 	ImprovedTube.YouTubeExperiments();
 	ImprovedTube.commentsSidebar();
+	ImprovedTube.commentsSidebarSimple();
 	ImprovedTube.categoryRefreshButton();
 	ImprovedTube.playerAutoContinueWatching();
 	try { if (ImprovedTube.lastWatchedOverlay) ImprovedTube.lastWatchedOverlay(); } catch (e) { console.error('[LWO] nav-finish error', e); }

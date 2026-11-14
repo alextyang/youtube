@@ -89,7 +89,7 @@ ImprovedTube.channelPlayAllButton = function () {
 			const playlistUrl = document.querySelector('ytd-app')?.__data?.data?.response?.metadata?.channelMetadataRenderer?.externalId?.substring(2);
 			const existingPlayAllButton = document.querySelector('.it-play-all-button');
 
-			//if (!container) return; // we only add button on /videos page
+			if (!container) return;
 			if (!playlistUrl) {
 				console.error('channelPlayAllButton: Cant find Channel playlist');
 				return;

@@ -187,10 +187,13 @@ document.addEventListener('it-message-from-extension', function () {
 				ImprovedTube.playlistReversed = ImprovedTube.storage.playlist_reversed_active;
 			}
 
-			if (ImprovedTube.storage.block_vp9 || ImprovedTube.storage.block_av1 || ImprovedTube.storage.block_h264 || ImprovedTube.storage.block_opus) {
+			if (ImprovedTube.storage.player_h264 || ImprovedTube.storage.block_vp9 || ImprovedTube.storage.block_av1 || ImprovedTube.storage.block_h264 || ImprovedTube.storage.block_opus) {
 				let atlas = { block_vp9: 'vp9|vp09', block_h264: 'avc1', block_av1: 'av01', block_opus: 'opus' },
 					codec = Object.keys(atlas).reduce(function (all, key) {
-						return ImprovedTube.storage[key] ? ((all ? all + '|' : '') + atlas[key]) : all
+						const blocked = ImprovedTube.storage.player_h264
+							? (key === 'block_vp9' || key === 'block_av1' || (key === 'block_opus' && ImprovedTube.storage[key]))
+							: ImprovedTube.storage[key];
+						return blocked ? ((all ? all + '|' : '') + atlas[key]) : all
 					}, '');
 				if (localStorage['it-codec'] != codec) {
 					localStorage['it-codec'] = codec;
@@ -224,10 +227,13 @@ document.addEventListener('it-message-from-extension', function () {
 			let camelized_key = message.camelizedKey;
 
 			ImprovedTube.storage[message.key] = message.value;
-			if (['block_vp9', 'block_h264', 'block_av1', 'block_opus'].includes(message.key)) {
+			if (['player_h264', 'block_vp9', 'block_h264', 'block_av1', 'block_opus'].includes(message.key)) {
 				let atlas = { block_vp9: 'vp9|vp09', block_h264: 'avc1', block_av1: 'av01', block_opus: 'opus' }
 				localStorage['it-codec'] = Object.keys(atlas).reduce(function (all, key) {
-					return ImprovedTube.storage[key] ? ((all ? all + '|' : '') + atlas[key]) : all
+					const blocked = ImprovedTube.storage.player_h264
+						? (key === 'block_vp9' || key === 'block_av1' || (key === 'block_opus' && ImprovedTube.storage[key]))
+						: ImprovedTube.storage[key];
+					return blocked ? ((all ? all + '|' : '') + atlas[key]) : all
 				}, '');
 				if (!localStorage['it-codec']) {
 					localStorage.removeItem('it-codec');

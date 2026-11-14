@@ -377,6 +377,7 @@ ImprovedTube.videoPageUpdate = function () {
 		if (this.storage.player_always_repeat === true) { ImprovedTube.playerRepeat(); };
 		ImprovedTube.playerPlaybackSpeedButton();
 		ImprovedTube.playerScreenshotButton();
+		ImprovedTube.playerVolumeBoostButton();
 		ImprovedTube.addYouTubeReturnButton();
 		ImprovedTube.playerRepeatButton();
 		ImprovedTube.playerRotateButton();
@@ -491,6 +492,7 @@ ImprovedTube.initPlayer = function () {
 		if (this.storage.player_always_repeat === true) { ImprovedTube.playerRepeat(); }
 
 		ImprovedTube.playerScreenshotButton();
+		ImprovedTube.playerVolumeBoostButton();
 		ImprovedTube.playerVideoFiltersButton();
 		ImprovedTube.playerRepeatButton();
 		ImprovedTube.playerRotateButton();

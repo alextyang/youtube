@@ -2,7 +2,7 @@
   APPEARANCE
 ------------------------------------------------------------------------------*/
 ImprovedTube.YouTubeExperiments = function () {
-	if ((this.storage.undo_the_new_sidebar === "true" || this.storage.description === "sidebar")
+	if ((this.storage.undo_the_new_sidebar === true || this.storage.undo_the_new_sidebar === "true" || this.storage.description === "sidebar")
 		&& document.documentElement.dataset.pageType === 'video') {
 	if (window.yt?.config_?.EXPERIMENT_FLAGS) {
 		const newSidebarFlags = [
@@ -11,7 +11,7 @@ ImprovedTube.YouTubeExperiments = function () {
 			'small_avatars_for_comments_ep',
 			'web_watch_rounded_player_large'
 		];
-	        if (this.storage.undo_the_new_sidebar === "true") {
+	        if (this.storage.undo_the_new_sidebar === true || this.storage.undo_the_new_sidebar === "true") {
 		if (window.yt.config_.EXPERIMENT_FLAGS.kevlar_watch_grid !== false) {
 			try {
                 	newSidebarFlags.forEach(F => {
@@ -218,12 +218,16 @@ ImprovedTube.playerRemainingDuration = function () {
  Comments Sidebar Simple
 ------------------------------------------------------------------------------*/
 ImprovedTube.commentsSidebarSimple = function () { if (ImprovedTube.storage.comments_sidebar_simple === true) {
+	if (!document.querySelector('#primary') || !document.querySelector('#comments') || !document.querySelector('#related') || !document.querySelector('#primary-inner')) return;
 	if (window.matchMedia("(min-width: 1599px)").matches) {
 		document.querySelector("#primary").insertAdjacentElement('afterend', document.querySelector("#comments"));}
 	if (window.matchMedia("(max-width: 1598px)").matches) {
 		document.querySelector("#related").insertAdjacentElement('beforebegin', document.querySelector("#comments"));
 		setTimeout(function () {
-			document.querySelector("#primary-inner").appendChild(document.querySelector("#related"));}
+			if (ImprovedTube.storage.comments_sidebar_simple === true && document.querySelector("#related")) {
+				document.querySelector("#primary-inner")?.appendChild(document.querySelector("#related"));
+			}
+		}
 		);}
 }
 }

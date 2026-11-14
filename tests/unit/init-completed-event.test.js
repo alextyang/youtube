@@ -26,7 +26,7 @@ describe('init_completed event', () => {
 			document,
 			CustomEvent,
 			console,
-			localStorage: {},
+			localStorage: {removeItem: function (key) { delete this[key]; }},
 			Object,
 			JSON,
 		});
@@ -54,6 +54,13 @@ describe('init_completed event', () => {
 		expect(context.ImprovedTube.blocklistInit).toHaveBeenCalledTimes(1);
 		expect(completed).toHaveBeenCalledTimes(1);
 		expect(order).toEqual(['init', 'blocklistInit', 'init_completed']);
+	});
+
+	test('hydrates the H.264 preset without separate codec flags', () => {
+		sendFromExtension({action: 'storage-loaded', storage: {player_h264: true, block_h264: true, block_opus: true}});
+		expect(context.localStorage['it-codec']).toBe('vp9|vp09|av01|opus');
+		sendFromExtension({action: 'storage-changed', key: 'player_h264', camelizedKey: 'playerH264', value: false});
+		expect(context.localStorage['it-codec']).toBe('avc1|opus');
 	});
 
 	test('is not emitted for other messages', () => {
