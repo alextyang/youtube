@@ -3341,11 +3341,10 @@ ImprovedTube.addYouTubeReturnButton = function () {
         // Insert button into player controls
         const insertButton = () => {
             const player = document.querySelector('.html5-video-player');
-            const titleContainer = document.querySelector('.ytp-title-text');
 
-            if (player && titleContainer && player.classList.contains('ytp-fullscreen')) {
+			if (player && player.classList.contains('ytp-fullscreen')) {
                 // Position button in top-left corner of fullscreen player
-                titleContainer.parentNode.insertBefore(returnButton, titleContainer);
+				player.appendChild(returnButton);
             }
         };
 
