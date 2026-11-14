@@ -16,6 +16,9 @@ function loadSubtitlesLanguage(context) {
 
 	vm.createContext(context);
 	vm.runInContext(source.slice(start, end), context);
+	const lyricsStart = source.indexOf('ImprovedTube.subtitlesDisableLyrics = function');
+	const lyricsEnd = source.indexOf('ImprovedTube.upNextAutoplay = function', lyricsStart);
+	vm.runInContext(source.slice(lyricsStart, lyricsEnd), context);
 }
 
 function createContext(tracklist) {
@@ -38,7 +41,8 @@ function createContext(tracklist) {
 	const context = {
 		ImprovedTube: {
 			elements: {player},
-			storage: {subtitles_language: 'en', auto_generate: false}
+			storage: {subtitles_language: 'en', auto_generate: false},
+			videoTitle: () => 'Sing Along'
 		},
 		location: {href: 'https://www.youtube.com/watch?v=test-video'},
 		setTimeout: callback => {
@@ -104,4 +108,14 @@ describe('subtitles language', () => {
 
 		expect(attempts).toBe(6);
 	});
+});
+
+test('lyric suppression wins when the preferred caption track arrives late', () => {
+	const {context, player, pendingRetries, subtitlesOn} = createContext([]);
+	context.ImprovedTube.storage.subtitles_disable_lyrics = true;
+	player.toggleSubtitles();
+	context.ImprovedTube.subtitlesLanguage();
+	player.tracklist = [english];
+	pendingRetries.shift()();
+	expect(subtitlesOn()).toBe(false);
 });

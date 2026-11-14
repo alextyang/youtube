@@ -372,6 +372,7 @@ ImprovedTube.subtitlesLanguage = function () {
 		player.setOption('captions', 'track', matchedTrack);
 		// setOption forces Subtitles ON, restore state from before calling it.
 		if (!subtitlesState) { player.toggleSubtitles(); }
+		this.subtitlesDisableLyrics();
 		return true;
 	});
 };
