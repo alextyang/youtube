@@ -612,7 +612,7 @@ ImprovedTube.playerQuality = function (quality = this.storage.player_quality) {
 			return curr;
 		};
 
-		if (!available_quality_levels.includes(quality)) {
+		if (quality !== 'auto' && !available_quality_levels.includes(quality)) {
 			let label = ['tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'hd1440', 'hd2160', 'hd2880', 'highres'];
 			let resolution = ['144', '240', '360', '480', '720', '1080', '1440', '2160', '2880', '4320'];
 			let availableresolutions = available_quality_levels.map(q => resolution[label.indexOf(q)]);

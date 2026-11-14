@@ -175,7 +175,8 @@ ImprovedTube.shortcutJumpToKeyScene = ImprovedTube.jumpToKeyScene;
 Ambient lighting
 ------------------------------------------------------------------------------*/
 ImprovedTube.shortcutToggleAmbientLighting = function () {
-	document.documentElement.toggleAttribute('it-ambient-lighting');
+	const root = document.documentElement;
+	root.setAttribute('it-ambient-lighting', root.getAttribute('it-ambient-lighting') === 'false' ? 'true' : 'false');
 };
 /*------------------------------------------------------------------------------
 4.7.1 QUALITY
@@ -184,7 +185,25 @@ ImprovedTube.shortcutQuality = function (key) {
 	const label = ['auto', 'tiny', 'small', 'medium', 'large', 'hd720', 'hd1080', 'hd1440', 'hd2160', 'hd2880', 'highres'],
 		resolution = ['auto', '144p', '240p', '360p', '480p', '720p', '1080p', '1440p', '2160p', '2880p', '4320p'];
 
-	ImprovedTube.playerQuality(label[resolution.indexOf(key.replace('shortcutQuality', ''))]);
+	const quality = label[resolution.indexOf(key.replace('shortcutQuality', '').toLowerCase())];
+	const player = this.elements.player;
+	if (quality === 'auto' && typeof player?.openSettingsMenuItem === 'function') {
+		const settings = player.querySelector('.ytp-settings-button');
+		const wasOpen = settings?.getAttribute('aria-expanded') === 'true';
+		// The range API alone does not refresh the native selected-quality state.
+		player.openSettingsMenuItem('menu_item_video_quality_advanced');
+		const items = [...player.querySelectorAll('.ytp-quality-menu [role="menuitemradio"]')]
+			.filter(item => item.getClientRects().length);
+		const levels = player.getAvailableQualityLevels?.();
+		const auto = items.find(item => item.querySelector('.ytp-menuitem-label')?.textContent.trim() === 'Auto')
+			|| (levels?.[levels.length - 1] === 'auto' && items.length === levels.length ? items[items.length - 1] : null);
+		if (auto) {
+			auto.click();
+			return;
+		}
+		if (!wasOpen && settings?.getAttribute('aria-expanded') === 'true') settings.click();
+	}
+	ImprovedTube.playerQuality(quality);
 };
 /*------------------------------------------------------------------------------
 4.7.1B PLAYBACK SPEED
@@ -216,7 +235,14 @@ ImprovedTube.shortcutPlaybackSpeed = function (key) {
 /*------------------------------------------------------------------------------
 4.7.2 PICTURE IN PICTURE (PIP)
 ------------------------------------------------------------------------------*/
-ImprovedTube.shortcutPictureInPicture = this.enterPip;
+ImprovedTube.shortcutPictureInPicture = function () {
+	this.enterPip();
+};
+
+ImprovedTube.shortcutAutoPictureInPicture = function () {
+	this.storage.player_autoPip = !this.storage.player_autoPip;
+	ImprovedTube.messages.send({action: 'set', key: 'player_autoPip', value: this.storage.player_autoPip});
+};
 /*------------------------------------------------------------------------------
 4.7.3 TOGGLE CONTROLS
 ------------------------------------------------------------------------------*/
@@ -523,25 +549,32 @@ ImprovedTube.shortcutDislike = function () {
 };
 /*------Report------*/
 ImprovedTube.shortcutReport = function () {
-	try {document.querySelectorAll("tp-yt-iron-dropdown").forEach(el => el.style.opacity = 0);
-		document.querySelector('svg path[d^="M7.5,12c0,0.83-0.67,1.5-1.5"]').closest("button").click(); document.querySelectorAll("tp-yt-iron-dropdown").forEach(el => el.style.opacity = 0)}
-	catch {console.log("'...' failed"); setTimeout(function () {try {document.querySelector('svg path[d^="M7.5,12c0,0.83-0.67,1.5-1.5"]').closest("button").click(); document.querySelectorAll("tp-yt-iron-dropdown").forEach(el => el.style.opacity = 0)}
-	catch {console.log("'...' failed2")}}, 100) }
-
-	setTimeout(function () {try {document.querySelectorAll("tp-yt-iron-dropdown").forEach(el => el.style.opacity = 0); document.querySelector('tp-yt-iron-dropdown svg path[d^="M13.18,4l0.24,1.2L13.58,6h0.82H19v7h-5.18l-0"]').closest("tp-yt-paper-item").click();}
-	catch {console.log("report failed"); setTimeout(function ()	{try {document.querySelector('tp-yt-iron-dropdown svg path[d^="M13.18,4l0.24,1.2L13.58,6h0.82H19v7h-5.18l-0"]').closest("tp-yt-paper-item").click();}
-	catch {console.log("report failed2"); document.querySelector('svg path[d^="M7.5,12c0,0.83-0.67,1.5-1.5"]').closest("button").click();}}, 800);
-	}
-	}, 200);
-
-	setTimeout(function () {try {document.querySelectorAll("tp-yt-iron-dropdown").forEach(el => el.style.opacity = 1)} catch {console.log("dropdown visible failed");
-		setTimeout(function () {try {document.querySelectorAll("tp-yt-iron-dropdown").forEach(el => el.style.opacity = 1)} catch {console.log("dropdown visible failed2");}}, 1700)}}, 700)
-}
+	const more = document.querySelector('ytd-watch-metadata button[aria-label="More actions"]')
+		|| document.querySelector('svg path[d^="M7.5,12c0,0.83-0.67,1.5-1.5"]')?.closest('button');
+	if (!more) return;
+	more.click();
+	const url = location.href;
+	let attempts = 0;
+	const openReport = function () {
+		if (location.href !== url) return;
+		const item = Array.from(document.querySelectorAll('tp-yt-iron-dropdown:not([hidden]) ytd-menu-service-item-renderer')).find(node => {
+			const data = node.data || node.__data?.data;
+			return data?.serviceEndpoint?.getReportFormEndpoint
+				|| data?.serviceEndpoint?.showEngagementPanelEndpoint?.identifier?.tag === 'PAabuse_report'
+				|| data?.serviceEndpoint?.signalServiceEndpoint?.actions?.some(action =>
+				action.openPopupAction?.popup?.reportFormModalRenderer) || data?.navigationEndpoint?.reportEndpoint;
+		}) || document.querySelector('tp-yt-iron-dropdown:not([hidden]) svg path[d^="M13.18,4l0.24,1.2L13.58,6h0.82H19v7h-5.18l-0"]')?.closest('tp-yt-paper-item');
+		if (item) (item.querySelector('tp-yt-paper-item') || item).click();
+		else if (++attempts < 10) setTimeout(openReport, 100);
+	};
+	openReport();
+};
 /*------------------------------------------------------------------------------
 4.7.24 SUBSCRIBE
 ------------------------------------------------------------------------------*/
 ImprovedTube.shortcutSubscribe = function () {
-	this.elements.subscribe_button?.click();
+	const button = this.elements.subscribe_button;
+	(button?.querySelector('button') || button)?.click();
 };
 /*------------------------------------------------------------------------------
 4.7.25 DARK THEME
@@ -604,9 +637,9 @@ ImprovedTube.shortcutStatsForNerds = function () {
 ------------------------------------------------------------------------------*/
 ImprovedTube.shortcutToggleCards = function () {
 	function toggleVideoOverlays () {
-		document.documentElement.toggleAttribute('it-player-hide-cards');
-		document.documentElement.toggleAttribute('it-player-hide-endcards');
-		document.documentElement.toggleAttribute('it-hide-video-title-fullScreen');
+		document.documentElement.setAttribute('it-player-hide-cards', document.documentElement.getAttribute('it-player-hide-cards') === 'true' ? 'false' : 'true');
+		document.documentElement.setAttribute('it-player-hide-endcards', document.documentElement.getAttribute('it-player-hide-endcards') === 'true' ? 'false' : 'true');
+		document.documentElement.setAttribute('it-hide-video-title-fullScreen', document.documentElement.getAttribute('it-hide-video-title-fullScreen') === 'true' ? 'false' : 'true');
 	}
 
 	toggleVideoOverlays();

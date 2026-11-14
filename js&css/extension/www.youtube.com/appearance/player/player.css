@@ -261,6 +261,7 @@ html[it-player-hide-endscreen='true'] .ytp-fullscreen-grid-stills-container,
 /*--------------------------------------------------------------
 # HIDE CARDS
 --------------------------------------------------------------*/
+html[it-player-hide-cards='true'] .ytp-ce-hide-button-container,
 html[it-player-hide-cards='true'] .ytp-ce-element,
 html[it-player-hide-cards='true'] .ytp-ce-video,
 html[it-player-hide-cards='true'] .ytp-cards-button,
