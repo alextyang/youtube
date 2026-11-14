@@ -2142,7 +2142,7 @@ ImprovedTube.pauseWhileTypingOnYoutube = function () {
 					(/^[a-z0-9]$/i.test(e.key) || e.key === "Backspace") &&
 				!(e.ctrlKey && (e.key === "c" || e.key === "x" || e.key === "a")) &&
 				( document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA" || document.activeElement.tagName === "DIV"
-				 ||	((document.activeElement && ImprovedTube.input.ignoreElements.includes(document.activeElement.tagName)) || event.target.isContentEditable)
+				 ||	((document.activeElement && ImprovedTube.input.ignoreElements.includes(document.activeElement.tagName)) || e.target.isContentEditable)
 				)) {
 				// Pause the video
 				// Check if player is paused
@@ -2161,7 +2161,7 @@ ImprovedTube.pauseWhileTypingOnYoutube = function () {
 					}, 2000); // 2000 milliseconds = 2 seconds
 				}
 			}
-		});
+		}, true);
 
 		function isPlayerInViewport () {
 			var player = ImprovedTube.elements.player;
